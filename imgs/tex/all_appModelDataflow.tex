@@ -1,0 +1,50 @@
+
+\begin{tikzpicture}
+\tikzset{edgelabel/.style={fill=white, circle, inner sep=0pt, minimum size=0pt}}
+\foreach \n in {1,2,...,4}{
+    \node[ circle, draw, thick, inner sep=0pt, minimum width=1cm] (t\n)  at (\n*360/11: 2.9cm) {$\tau_1^{\n}$};
+}
+\foreach \n in {5,6,...,11}{
+    \pgfmathsetmacro\result{\n - 4}
+    \node[circle, draw, thick, inner sep=0pt, minimum width=1cm] (t\n)  at (\n*360/11: 2.9cm) {$\tau_2^{\pgfmathprintnumber{\result}}$};
+}
+\node[draw, thick, rectangle, inner sep=0pt, minimum size=1cm] (i1) at(4,2.1) {$i_1$};
+\node[draw, thick, rectangle, inner sep=0pt, minimum size=1cm] (o1) at(4,-2.) {$o_1$};
+\draw[-latex, thick, bend left] (i1) edge node[midway] {} (t1) ;
+\draw[-latex, thick, bend left] (t10) edge node[midway] {} (o1) ;
+
+\draw[-latex, thick, bend right] (t1) edge node[midway, edgelabel] {\tiny $\delta_a$} (t2) ;
+\draw[-latex, thick, bend left] (t1) edge node[midway, edgelabel] {\tiny $\delta_b$} (t2);
+\draw[-latex, thick, bend left] (t1) edge node[midway, edgelabel] {\tiny $\delta_a$} (t3);
+\draw[-latex, thick, bend left] (t1) edge node[midway, edgelabel] {\tiny $\delta_b$} (t4);
+\draw[-latex, thick] (t1) -- node[midway, edgelabel] {\tiny $\delta_b$} (t11);
+
+\draw[-latex, thick] (t2) -- node[midway, edgelabel] {\tiny $\delta_c$} (t1);
+\draw[-latex, thick, bend left] (t2) edge node[midway, edgelabel] {\tiny $\delta_e$} (t4);
+
+\draw[-latex, thick, bend left] (t3) edge node[midway, edgelabel] {\tiny $\delta_d$} (t5);
+\draw[-latex, thick, bend right] (t3) edge node[midway, edgelabel] {\tiny $\delta_d$} (t4);
+\draw[-latex, thick] (t3) -- node[midway, edgelabel] {\tiny $\delta_d$} (t8);
+
+\draw[-latex, thick, bend left] (t4) edge node[midway, edgelabel] {\tiny $\delta_f$} (t5);
+
+\draw[-latex, thick, bend left] (t5) edge node[midway, edgelabel] {\tiny $\delta_g$} (t4);
+\draw[-latex, thick, bend left] (t5) edge node[midway, edgelabel] {\tiny $\delta_g$} (t6);
+\draw[-latex, thick, bend right] (t5) edge node[midway, edgelabel] {\tiny $\delta_h$} (t6);
+\draw[-latex, thick, bend left] (t5) edge node[midway, edgelabel] {\tiny $\delta_h$} (t7);
+
+\draw[-latex, thick] (t6) -- node[midway, edgelabel] {\tiny $\delta_i$} (t5);
+\draw[-latex, thick, bend left] (t6) edge node[midway, edgelabel] {\tiny $\delta_j$} (t8);
+\draw[-latex, thick, bend left] (t6) edge node[midway, edgelabel] {\tiny $\delta_j$} (t11);
+
+\draw[-latex, thick, bend left] (t7) edge node[midway, edgelabel] {\tiny $\delta_k$} (t9);
+
+\draw[-latex, thick] (t8) -- node[midway, edgelabel] {\tiny $\delta_l$} (t2);
+\draw[-latex, thick, bend left] (t8) edge node[midway, edgelabel] {\tiny $\delta_l$} (t10);
+
+\draw[-latex, thick, bend left] (t9) edge node[midway, edgelabel] {\tiny $\delta_m$} (t10);
+\draw[-latex, thick, bend right] (t9) edge node[midway, edgelabel] {\tiny $\delta_n$} (t10);
+
+\draw[-latex, thick] (t11) -- node[midway, edgelabel] {\tiny $\delta_o$} (t7);
+
+\end{tikzpicture}

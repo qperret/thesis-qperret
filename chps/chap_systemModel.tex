@@ -1,0 +1,459 @@
+\documentclass[main.tex]{subfiles}
+\begin{document}
+
+\chapter{Thesis context}
+\thispagestyle{chapstyle}
+\label{chap_systemModel}
+\minitoc
+
+
+In this chapter, we present the inputs of the PhD work imposed by the industrial context. We firstly describe in Section~\ref{sec_systemModel_appModel} an abstract model of the avionics applications under considerations in this thesis. Secondly, we provide in Section~\ref{sec_systemModel_archiMppa} extensive details on the COTS target that was chosen by Airbus and explain the motivation behind this choice. Finally, we study in Section~\ref{sec_systemModel_additionalConstraints} the constraints that must be met in an aerospace and industrial context, such as the need for WCET computability or the limitations on eligible mapping and scheduling techniques to keep certification costs low.
+
+
+%In this chapter, we will detail the consequences of the aerospace and industrial context of this thesis. 
+%In Section~\ref{sec_systemModel_appModel}, we provide a formal model of multi-periodic hard real-time parallel tasks representing the real avionics applications that we will consider throughout the thesis.
+%We detail the architecture of the \mppalong and we analyze the reasons making it a good candidate for the design of future avionics computers in Section~\ref{sec_systemModel_archiMppa}.
+%And finally, we will study in Section~\ref{sec_systemModel_additionalConstraints} the additional constraints that must be met in an aerospace and industrial context, such as the need for WCET computability or the limitations on eligible mapping and scheduling techniques to keep certification costs low.
+
+
+
+\section{Application model}
+\label{sec_systemModel_appModel}
+
+In this section, we formalize the model of applications that we will consider in the rest of the dissertation. This model is representative of existing control applications at Airbus and is thus imposed in the context of this thesis.
+An application is a tuple $< \tau , \delta >$ where $\tau$ is a finite set of parallel tasks and $\delta$ is a finite set of data. 
+
+\subsection{Parallel task model}
+The set of tasks $\tau = \{ \tau_1 , \ldots , \tau_n \}$ is composed of several tasks $\tau_i = < S_i , P_i , T_i >$ with:
+\begin{itemize}
+    \item $S_i = \{ \tau_i^1 , \ldots , \tau_i^{n_i} \}$ is a finite set of $n_i$ sub-tasks. All sub-tasks are simultaneously activated at the activation of $\tau_i$ and share the same implicit deadline equal to the period of $\tau_i$. In addition, each sub-task is defined by $\tau_i^j = < C_i^j , M_i^j , I_i^j , O_i^j >$ with:
+        \begin{itemize}
+            \item $C_i^j$ the WCET of the sub-task;
+            \item $M_i^j$ the memory footprint of the sub-task, including the size of code, static and read-only data;
+            \item $I_i^j$ and $O_i^j$ respectively the input and output buffers~\footnote{The I/O buffers are used to represent the interactions with external components, i.e. transactions with the external DDR-SDRAM of the reception/emission of Ethernet frames.} in which $\tau_i^j$ reads or writes.
+        \end{itemize}
+
+    \item $P_i \subset S_i \times S_i$ is a set of ordered pairs of sub-tasks. $P_i$ represents precedence relations constraining the order of execution of the sub-tasks. More precisely, $(\tau_i^x , \tau_i^y) \in P_i$ indicates that $\tau_i^x$ must complete its execution before $\tau_i^y$ can start. The set of precedences is assumed to be cycle-free and so, $P_i$ can be represented with a \emph{Directed Acyclic Graph} (or \emph{DAG}).
+
+    \item $T_i$ is the period of $\tau_i$. It also serves as implicit deadlines for all sub-tasks of $\tau_i$.
+\end{itemize}
+
+We define the \emph{Hyperperiod} of the taskset as $H = \underset{\forall i \in [1 , n]}{lcm} ( T_i )$ where $lcm$ is the \emph{least common multiple} function.
+
+\subsection{Data exchanges and communications}
+The data in $\delta = \{ \delta_1 , \ldots , \delta_m \}$ are produced and consumed by the sub-tasks of the application. More precisely, with $S = \underset{\tau_i \in \tau}{\bigcup} S_i$ the set of all sub-tasks in the application, each data $\delta_k$ is defined as a tuple $\delta_k = < m_k , prod , cons >$ where:
+\begin{itemize}
+    \item $m_k$ represents the size of the data;
+    \item $prod : \delta \mapsto S$ associates each data to its unique producing sub-task;
+    \item $cons : \delta \mapsto 2^S$ associates each data to the set of consuming sub-tasks.
+\end{itemize}
+
+Any two sub-tasks can exchange data, including pairs of sub-tasks that are not constrained by precedence relations. However, two sub-tasks constrained by precedence relations are always assumed to exchange data. Indeed, requiring a specific execution order of sub-tasks that do not communicate is not consistent semantically.
+
+No assumption is made on the tasks periods' ratios. However, the model allows precedence relations only between sub-tasks of the same task, thus having the same period. Multi-rate precedences are not allowed. No such constraint is imposed on data. A data can be produced in a task and consumed in an other, even if the two tasks do not run at the same pace. The only assumption on such multi-rate data is that the consumed value is always the freshest one, that is, the one that was produced during the last activation of the producing sub-task. Doing so enables to bound the freshness of the consumed multi-rate data. The underlying assumption here is that the treatment made by task on multi-rate data is robust to its maximum production-to-consumption delay, that is equal to the period of the producing sub-task.
+
+
+\begin{example}[Example of application model]
+    \label{ex_systemModel_appModel}
+
+    We consider an application composed of 2 tasks $\tau_1$ and $\tau_2$. $\tau_1$ is composed of 4 sub-tasks 
+    $\{ \tau_1^1 , \ldots , \tau_1^4 \}$  and $\tau_2$ of 7 sub-tasks 
+    $\{ \tau_2^1 , \ldots , \tau_2^7 \}$. The 11 sub-tasks exchange 15 data
+    $\{ \delta_a , \ldots , \delta_o \}$, read from 1 input buffer $i_1$ and write in 1 output buffer $o_1$.
+    The periods of $\tau_1$ and $\tau_2$ respectively are $T_1 = 24$ and $T_2 = 48$. 
+    The precedence constraints between the sub-tasks are depicted in Figure~\ref{fig_all_appModelPrecs}.
+    The production and consumption of data and I/O buffers are depicted in Figure~\ref{fig_all_appModelDataflow}.
+    Table~\ref{table_stateOfTheArt_2_tableTasksetExample} provides the attributes of all sub-tasks (\emph{ck} stands for clock cycle).
+
+
+    \begin{table}[]
+        \centering
+        \begin{tabular*}{0.8\linewidth}{@{\extracolsep{\fill}}  c c c c c }
+            \hline
+            Sub-task & $C_i^j$ (in ck) & $M_i^j$ (in KiB) & $I_i^j$ & $O_i^j$ \\
+            \hline
+            $\tau_1^1$ & 500    & 519  & $i_1$          & $\varnothing$  \\
+            $\tau_1^2$ & 500    & 397  & $\varnothing$  & $\varnothing$  \\ 
+            $\tau_1^3$ & 700    & 642  & $\varnothing$  & $\varnothing$  \\ 
+            $\tau_1^4$ & 400    & 262  & $\varnothing$  & $\varnothing$  \\ 
+            $\tau_2^1$ & 1,000  & 287  & $\varnothing$  & $\varnothing$  \\ 
+            $\tau_2^2$ & 400    & 799  & $\varnothing$  & $\varnothing$  \\ 
+            $\tau_2^3$ & 500    & 542  & $\varnothing$  & $\varnothing$  \\ 
+            $\tau_2^4$ & 800    & 764  & $\varnothing$  & $\varnothing$  \\ 
+            $\tau_2^5$ & 900    & 490  & $\varnothing$  & $\varnothing$  \\ 
+            $\tau_2^6$ & 500    & 399  & $\varnothing$  & $o_1$  \\ 
+            $\tau_2^7$ & 600    & 12   & $\varnothing$  & $\varnothing$  \\ 
+            \hline
+        \end{tabular*}
+        \caption{Example of sub-tasks parameters}
+        \label{table_stateOfTheArt_2_tableTasksetExample}
+    \end{table}
+
+    \begin{figure}
+        \centering
+        \begin{subfigure}[b]{0.49\linewidth}
+            \centering
+            \input{imgs/tex/all_appModelPrecs.tex}
+            \caption{Precedence constraints}
+            \label{fig_all_appModelPrecs}
+        \end{subfigure}
+        \begin{subfigure}[b]{0.49\linewidth}
+            \centering
+            \input{imgs/tex/all_appModelDataflow.tex}
+            \caption{Data and I/O buffers}
+            \label{fig_all_appModelDataflow}
+        \end{subfigure}
+        \caption{Example of application model}
+        \label{fig_stateOfTheArt_2_appModelExample}
+    \end{figure}
+\end{example}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Architecture of the \mppalong}
+\label{sec_systemModel_archiMppa}
+%Since the focus of this thesis is to leverage the massively parallel computational power of many-core processors, we will investigate the scheduling possibilities on such architecures. We consider a NoC-based many-core processor architecture featuring a distributed memory similar to the \mppalong.
+
+%As depicted in Figure~\ref{fig_stateOfTheArt_2_genericManyCore}, such architecure is composed of several \emph{tiles}, each of which features some processing cores and some local memory. Since each tile has its own addressing space, the modification of a data in a local memory is not systematically seen by cores of other tiles. In such architecture, the hardware does not enforce data coherency. The software is fully in charge of commiting data modifications to other tiles through explicit message passing. This represents a major difference with mono- and multi-core processors where coherency is either inherent to the architecure or fully hardware-supported and transparent to software designers. 
+
+%Moreover, software can be executed only with code and data that is locally present in the tile's memories. In this context, the locality of code and data appears to require particular attention to achieve good performance. So, the mapping of code and data on such processors will strongly depend on the storage capacity of the tiles. Yet, such memories are usually orders of magnitude smaller than external RAM chips (2MiB per tile in the \mppalong against several GiB for the external RAM). So, applications that used to face no storage issues when placed in RAM on on mono- or multi-core processors now need to be treated in a different manner to account for these new memory limitations.
+
+%\begin{figure}
+%    \centering
+%    \scalebox{0.7}{\input{imgs/tex/stateOfTheArt_NoC.tex}}
+%    \caption{Generic many-core architecture}
+%    \label{fig_stateOfTheArt_2_genericManyCore}
+%\end{figure}
+
+The \mppalong \cite{kalray_mppa} is a many-core processor featuring 288 cores on a single chip. It targets the market of real-time computing-intensive low-power applications thanks to good temporal properties and a high computational power versus energy consumption ratio. In the following sections, we provide extensive details on the second version of the \mppalong architecture named \emph{Bostan}.
+
+\subsection{Overview}
+The \mppalong is organized in 16 \emph{compute clusters} dedicated to run user code. Four additional \emph{I/O clusters} serve as interfaces for managing communications with out-of-chip components or functions such as DDR-SDRAM or Ethernet. As depicted in Figure~\ref{fig_execModel_MPPANoCtopology}, all the clusters are interconnected with a dual 2D-torus NoC enabling point-to-point communications with explicit message-passing. 
+
+\begin{figure}
+    \centering
+    \scalebox{1.5}{\input{imgs/tex/all_MPPANoCtopology.tex}}
+    \caption{Architecture of the \mppalong}
+    \label{fig_execModel_MPPANoCtopology}
+\end{figure} 
+
+\subsection{Compute clusters}
+As depicted in Figure~\ref{fig_execModel_MPPAComputeCluster}, each compute cluster features:
+\begin{itemize}
+    \item 16 cores, denoted as the \emph{Processing Elements} (or \emph{PEs}), for executing user code;
+    \item 1 additional core denoted as \emph{Resource Manager} or (\emph{RM}) in charge of managing and configuring the resources that are local to the cluster;
+    \item 1 \emph{Debug and Support Unit} (or \emph{DSU}) to ease programming and debugging with JTAG;
+    \item 1 \emph{Direct Memory Access} (or \emph{DMA}) unit to automate data sending over the NoC;
+    \item 2MiB of shared SRAM organized in 16 independent banks;
+    \item 1 access to each NoC.
+\end{itemize}
+
+
+
+\begin{figure}
+    \centering
+    \scalebox{0.8}{\input{imgs/tex/execModel_MPPAComputeCluster.tex}}
+    \caption{Architecture of compute clusters in the \mppalong}
+    \label{fig_execModel_MPPAComputeCluster}
+\end{figure}
+
+
+\subsubsection{Shared SRAM}
+The 2 MiB of SRAM in a compute cluster are organized in 16 independent banks. Two local masters of the cluster (among PEs, the RM, the DMA or the DSU) can target two different banks without suffering from interferences. Their memory access paths are not dependent. However, concurrent accesses from two masters targeting the same bank will be arbitrated with a hierarchical arbitration policy depicted in Figure~\ref{fig_execModel_MPPASMEMarbiter}.
+\begin{figure}
+    \centering
+    \scalebox{0.8}{\input{imgs/tex/execModel_MPPASMEMarbiter.tex}}
+    \caption{Hierarchical SRAM arbiter of \mppalong}
+    \label{fig_execModel_MPPASMEMarbiter}
+\end{figure}
+
+\begin{description}
+    \item[Arbitration policy]
+        Each local SRAM bank is accessible from 20 memory access paths: 16 serving the PEs (for both instruction and data caches), 1 for the RM, 1 for the DSU, 1 for the DMA when \emph{receiving} packets from the NoC and 1 for the DMA when \emph{emitting} packets. Each bank has a memory arbiter interleaving concurrent accesses from any of the 20 memory masters. PEs accesses are arbitrated in a Round-Robin fashion. Similarly, memory requests from the DSU, the RM and the DMA in emission are arbitrated in Round-Robin. The resulting accesses from this first level of arbitration enter another Round-Robin arbiter before eventually accessing the bank. The case of the received packets from the NoC is treated differently. The memory requests issued by the DMA when receiving packets have full priority over any other memory transactions to access any local SRAM bank. As a consequence, requests from PEs, the RM, the DMA in emission or the DSU are systematically stalled while the DMA writes the received data into memory. This is done to avoid congestion on the NoC.
+
+    \item[Addressing modes]
+        The local memory addressing can be configured in two modes at startup: \emph{interleaved} or \emph{blocked} addressing schemes. When in \emph{interleaved} mode, contiguous memory addresses jump from bank to bank every 64 bytes. This usually distributes the memory requests evenly over the 16 banks and provides good average performances without paying particular attention to the memory mapping. When in \emph{blocked} mode, contiguous memory areas are not shuffled among the banks and each bank can be addressed directly with a linear 128KiB address space.
+\end{description}
+
+
+\subsubsection{Intra-cluster communications}
+\label{sssec_execModel_intraClusterComs}
+The communication between local elements inside a compute cluster are essentially achieved with shared memory. The two exceptions lie in the PEs shared registers and the notification system signaling to the RM and PEs the occurrence of specific events.
+
+\begin{description}
+    \item[Cache coherency]
+        Each core in a compute cluster features one private instruction cache of 8KiB and one private data cache of 8KiB. All caches use the \emph{Least Recently Used} (or \emph{LRU}) line replacement policy. Cache coherency is not enforced by any hardware mechanisms inside clusters and not between clusters either. Specific instructions are provided to achieve uncached memory accesses, to purge write-buffers and to invalidate caches.
+
+    \item[Memory Management Units]
+        Each core features a MMU capable of both virtual addressing and memory protection. \emph{Translation Lookaside Buffers} (or \emph{TLBs}) can be configured to enforce local caching policies (Write-Through or Bypass) on specific memory pages.
+
+
+    \item[Events and shared registers]
+        As depicted in Figure~\ref{fig_execModel_MPPAComputeCluster}, PEs are bundled in groups of four neighbors. In each group, PEs can send events to each others to achieve synchronization barriers. Moreover, the RM is capable of sending and receiving events to/from all PEs in the cluster.
+        Each PE can also write directly to the 32 upper registers of its three neighbors. 
+\end{description}
+
+
+\subsubsection{Inter-cluster communications}
+All the inter-cluster communications are achieved by explicit message passing or remote DMA through the NoC. The DMA in each cluster unloads the cores from the work of pushing or receiving data through the network interfaces. 
+
+\begin{description}
+    \item[Sending data]
+        The DMA features a micro-engine capable of sending data through 8 \emph{Tx channels}. Each Tx channel can be configured independently. In particular, each Tx channel can be set-up with a specific route and specific traffic regulation parameters. Those configurations are done using memory-mapped registers that should be written by the RM. PEs may be allowed to write such configurations if and only if the RM previously updated permissions registers to explicitly allow it. 
+
+        The micro-engine of the DMA can run up to 8 threads simultaneously. Each thread will push data through any of the 8 Tx channels. In particular, each thread executes instructions from a specific binary code resulting from the compilation of a \emph{micro-code} expressed in a light Kalray-specific assembly language. Threads can read parameters from memory-mapped registers that are written by the RM, or possibly the PEs if permission registers allow it. Those parameters can be used to pass the base address and the length of a buffer that shall be sent by the DMA for example.
+
+    \item[Receiving data]
+        The DMA features 256 \emph{Rx channels} that can be configured independently. Each Rx channel can be associated with a buffer of fixed length in the local SRAM. All the packets received through this channel will be written in this memory area. In addition, each Rx channel can be configured in a specific mode to notify the RM when an \emph{End of Transmission} (or \emph{EOT}) message has been received or when the total amount of data received overpassed a predefinite trigger for example.
+\end{description}
+
+\subsubsection{Debug and Support Unit}
+Each cluster has a local DSU which provides JTAG links to help programming and debugging applications. Each DSU also provides a messaging interface to allow cores to push messages directly on the JTAG link. This can be used to enable lightweight logging mechanisms for example. Finally, each DSU has a 64-bits timestamp, counting cycles from boot time. All the timestamps of all DSUs are fully synchronous by design on Bostan. It provides a global notion of time shared by all clusters.
+
+\subsection{k1b cores}
+All the 288 cores of the \mppalong are designed upon the same \emph{k1b} architecture which implements a 5-issue \emph{Very Long Instruction Word} (or \emph{VLIW}) ISA with a 7-stage instruction pipeline, running at 600MHz by default. 
+
+\begin{description}
+    \item[Arithmetics]
+        The k1b cores are capable of 32 and 64 bits arithmetics on integers and also feature several \emph{Floating-Point Units} for multiply-add instructions on single and double precision IEEE754-2008 floating point numbers.
+
+    \item[Execution modes]
+        The k1b cores can run in different execution modes to support the utilization of an Operating System. This mode can be either \emph{privilege} or \emph{user} mode. Usually, applications should run in user mode. Transitions to privilege mode should occur only on hardware traps, interrupts or system calls and should be treated by the OS.
+
+    \item[MMU]
+        As mentioned in Section~\ref{sssec_execModel_intraClusterComs}, each k1b core also features an MMU to enable virtual addressing, ensure memory protection and enforce specific caching policies on memory pages. The MMU includes two TLBs: a fully-associative one of 8 entries denoted as the \emph{Locked TLB} (or \emph{LTLB}); and a 2-way set associative one of 128 entries denoted as the \emph{Join TLB} (or \emph{JTLB}). The TLB configuration supports arbitrary 2$^{\text{n}}$-sized memory pages.
+\end{description}
+
+
+
+\subsection{I/O clusters}
+Each I/O cluster features: four RMs forming a Quad-core, a single bank of 2MiB of SRAM, four DMAs and several I/O peripherals.
+
+Thanks to their privileged access to the two DDR-SDRAM controllers, the north and south I/O clusters are often denoted as the \emph{IODDR}. Similarly, the east and west clusters are named \emph{IOETH} because of their proximity with the Ethernet controllers. In the \emph{Bostan} version of the \mppalong, the north and east I/O clusters are grouped in an \emph{I/O subsystem} (similar for south and west I/O clusters) which enables tighter coupling of resources. For example, in an I/O subsystem, the RMs of one cluster can target directly the SRAM bank of the other cluster.
+
+\subsubsection{Quad-core RM}
+In each I/O cluster, the four RMs implement the k1b ISA. Each RM has a private instruction cache of 32KiB and the four RMs share a configurable data cache of 128KiB. The data cache that can be either shared or split in four private data caches of 32KiB.
+
+\subsubsection{DRAM subsystem}
+\label{sssec_systemModel_MPPADRAMarbiter}
+Both the north and the south I/O clusters feature a DRAM subsystem containing a DDR3-SDRAM controller and an arbiter.
+
+\begin{figure}
+    \centering
+    \scalebox{0.8}{\input{imgs/tex/execModel_MPPADRAMarbiter.tex}}
+    \caption{DDR-SDRAM arbiter of the \mppalong}
+    \label{fig_execModel_MPPADRAMarbiter}
+\end{figure}
+\begin{description}
+    \item[Overview]
+        The DRAM subsystem can be accessed by 8 \emph{masters} able to read and write in DDR through the 8 ports of the \emph{Multi-Port Front-End} (or \emph{MPFE}, Figure~\ref{fig_execModel_MPPADRAMarbiter}). Two ports are dedicated to handle requests from the 4 RMs and the DSUs of the IODDR and the IOETH cluster in the I/O subsystem. Two other ports are reserved for reads and writes from PCIe backend DMAs. The remaining four ports are reserved for the four DMAs of the IODDR.
+    \item[Arbitration]
+        As depicted in Figure~\ref{fig_execModel_MPPADRAMarbiter}, the DRAM arbiter of the \mppalong is composed of two elements. The \emph{Multi Port Front End} (or \emph{MPFE}) serializes the requests issued by the masters. Each master (or group of masters) is assigned a priority. In case of concurrent requests, the master with the highest priority will be given full access by the MPFE. Competing masters with the same priority will be arbitrated in Round-Robin. In addition, the MPFE features a \emph{starvation counter} that measures the time during which a request has been pending because of higher priority requests. When this counter reaches a pre-defined level, the pending master is given the maximum priority, thus avoiding starvation.
+
+        The second element of the \mppalong's DRAM arbiter is the \emph{Reorder Core}. It receives requests forwarded by the MPFE and stores them in a pool of $N_{req}^{pool}=8$ elements. Then, it applies the following four rules to decide the order in which the requests will be issued to the controller.
+
+        \begin{description}
+            \item[Rule 1] Requests from high priority masters go first;
+            \item[Rule 2] Requests on active rows have priority on request targeting non-active rows;
+            \item[Rule 3] Requests targeting a recently opened page have low priority during $t_{RC}$;
+            \item[Rule 4] \emph{RD} requests have priority over \emph{WR} if previous request was a \emph{RD} and vice versa. 
+        \end{description}
+
+        Every time a request is issued to the controller, the reorder core accepts a new request from the MPFE and re-computes the order of requests with the same four rules.
+
+        \begin{example}[Reordering of DRAM requests]
+            We assume ascending priorities. The following requests are present in the reordering pool:
+            \begin{description}
+                \item[Req. 1] \emph{RD} of priority 7 to a non-active row in bank 0;
+                \item[Req. 2] \emph{WR} of priority 4 to an active row in bank 1;
+                \item[Req. 3] \emph{RD} of priority 4 to a non-active row in bank 0;
+                \item[Req. 4] \emph{RD} of priority 4 to a non-active row in bank 1;
+                \item[Req. 5] \emph{WR} of priority 7 to an active row in bank 2;
+                \item[Req. 6] \emph{WR} of priority 7 to a non-active row in bank 1;
+                \item[Req. 7] \emph{WR} of priority 4 to an active row in bank 3;
+            \end{description}
+
+            Assuming the four rules of the reorder core, the requests will be served in the following order:
+            \begin{description}
+                \item[Req. 5] wins Rule 1 with Req. 1 and Req. 6 and wins Rule 2;
+                \item[Req. 6] wins Rule 1 with Req. 1 and wins Rule 4;
+                \item[Req. 1] wins Rule 1;
+                \item[Req. 7] wins Rule 2 (row of Req. 2 has been closed by Req. 6);
+                \item[Req. 3] wins Rule 3 (bank 0 is the least recently opened);
+                \item[Req. 4] wins Rule 4;
+                \item[Req. 2] last request.
+            \end{description}
+        \end{example}
+\end{description}
+
+
+We will provide further information on the architecture of DRAM subsystems and the methods that have been applied to used them in a predictable manner in Section~\ref{sssec_stateOfTheArt_basicsDRAM}.
+
+
+\subsection{On-chip networks}
+The \mppalong features two parallel NoCs implementing the same 2D-torus topology shown in Figure~\ref{fig_execModel_MPPANoCtopology}. The \emph{Data-NoC} (or \emph{DNoC}) is dedicated for the exchange of large data. The \emph{Control-NoC} or \emph{CNoC} is used to send small control messages to achieve inter-cluster synchronization for example. Both NoCs are wormhole-switched, source-routed, 32 bits wide and running at 600MHz by default.
+
+\subsubsection{Switches}
+
+All the NoC switches are identical (Figure~\ref{fig_execModel_MPPANoCswitch}). The switches have 5 interfaces: North, South, East, West and Local. Each interface has four buffers to store packets received by any of the four other interfaces. In case some flows are conflicting to access an output interface, they are arbitrated in Round-Robin at packet level. Since output buffers are not shared, two flows crossing a switch without interface conflicts will not interfere.
+\begin{figure}
+    \centering
+    \scalebox{0.5}{\input{imgs/tex/stateOfTheArt_NoCswitch.tex}}
+    \caption{NoC switch of the \mppalong. The local interface is not depicted for clarity.}
+    \label{fig_execModel_MPPANoCswitch}
+\end{figure}
+
+\subsubsection{Routing}
+The route that will be followed by a packet is fully defined by software prior to emission. The default header of a DNoC packet includes 43-bits field to store a route. It contains a concatenation of directions encoded on two bits 
+(\verb#0x0# to go North, \verb#0x1# to go South, \verb#0x2# to go East, \verb#0x3# to go West) starting from LSB. 
+
+The final destination node of the packet is encoded into the route. The packet reaches the final node when the next direction that it should take is the direction from which it entered the switch. For example, a packet arriving from the east interface is considered as arrived at destination if its next direction is east.
+
+\begin{example}[Routes on the \mppalong]
+    A packet following the route: 
+    \begin{center}
+    \verb#0x2DA = 0b1011011010# 
+    \end{center}
+    goes east, east, south, west and gets delivered.
+\end{example}
+
+The NoC also implements additional features to handle multicast (the packet is delivered to \emph{some} of the nodes on its route) and broadcast (the packet is delivered to \emph{all} nodes on its route) modes. Packet headers can also be extended to account for routes not fitting into 43 bits, up to 104 bits.
+
+
+\subsection{Remote memory operations}
+In this section, we provide further details about the \emph{remote memory operations} on the \mppalong. A \emph{remote write} corresponds to the process of writing data into the memory (either local or external) of a remote cluster. Symmetrically, a \emph{remote read} corresponds to the process of reading data from a distant cluster. We provide two examples of remote reads and writes targeting the external DDR3-SDRAM memory as shown in Figure~\ref{systemModel_MPPAremoteMem}. One may note that remote reads and writes targeting local SRAM of a remote cluster can be achieved with similar processes.
+
+
+\begin{figure}
+\begin{center}
+    \input{imgs/pdf/systemModel_MPPAremoteMem.tex}
+	\caption{Example of remote memory operations on a simplified model of the \mppalong}
+	\label{systemModel_MPPAremoteMem}
+\end{center}
+\end{figure}
+
+\begin{example}[Remote write]
+In this example, the core 3 of cluster B requires to write data in the bank 4 of the external DDR3-SDRAM memory. We detail each step of this write process as shown in figure~\ref{systemModel_MPPAremoteMem} 
+    (the \emph{Write process} is numbered with \emph{numbers} and depicted with dotted arrows in figure~\ref{systemModel_MPPAremoteMem}):
+\begin{enumerate}
+    \item[1.] The requesting computing core (core 3 of cluster B) writes the data to be sent in the local memory of the compute cluster. As the banks of the local SRAM are shared among many potential requesters, there may be an arbitration at this level in the case of concurrent accesses to the bank. 
+	\item[2.] The core signals to the local DMA its intention to send the data.
+	\item[3.] DMA reads the data (written by core 3 at step 1) from the local memory. Once again, any concurrent access to the same bank will involve an arbitration.
+	\item[4.] DMA sends the data through the NoC. If the amount of data to send is important, it will be split in several packets constituting a flow. All the packets will cross the NoC following the same path. If one or several parts of this NoC path are shared with other NoC flows, the arbitration between the flows will occur at packet level.
+	\item[5.] The sink DMA (DMA 2 of the I/O cluster) receives the packets and initiates DDR3-SDRAM write transactions. If other masters (I/O cores, other DMAs, \ldots) access the external memory concurrently, an arbitration process will occur. This phase assumes that the sink DMA has been configured before reception to associate one of its reception queues to a specific DDR3-SDRAM address (an address in bank 4 of the DDR3-SDRAM here). 
+	\item[6.] Once the sink DMA write(s) request(s) is/are elected by the memory arbiter, data is written into the DDR3-SDRAM array.
+\end{enumerate}
+\end{example}
+
+
+\begin{example}[Remote read]
+    In this example, the core 2 of cluster A needs to read data from the bank 2 of the DDR-SDRAM to store it in the bank 1 of its local memory. We detail each step of this read process as shown in figure~\ref{systemModel_MPPAremoteMem} (the \emph{Read process} is numbered with \emph{letters} and dashed arrows in figure~\ref{systemModel_MPPAremoteMem}):
+
+\begin{enumerate}
+    \item[a.] The DMA of the I/O cluster initiates a DDR3-SDRAM read transaction. Once again, any concurrent access to the memory with any other master will involve arbitration.
+    \item[b.] Once the DMA command is elected, data is transferred from DDR3-SDRAM to the DMA.
+    \item[c.] DMA sends packets through the NoC. Again, important amounts of data are packetized and arbitrated with concurrent flows at packet level.
+    \item[d.] DMA of the compute cluster receives the packets and attempts to write them back into the local memory. Again, we assume that this DMA has been pre-configured to associate one of its reception queue to a specific memory area of the local memory (the bank 1 in this example). 
+\end{enumerate}
+
+    We remark that a read process is fairly equivalent to a write process. Indeed, a read by a computing core is equivalent to a write from an IO cluster. The difference is that the destination of the data is not the external memory but the internal memory of a Compute cluster.
+
+    In this example, the phase \emph{a.} of the read process is initiated by the DMA of the I/O cluster. It is assumed here that the DMA is either responding to a read request that was previously sent by the requesting cluster or started automatically following a scheduling table computed off-line.
+\end{example}
+
+
+
+
+
+\subsection{Compatibility with a safety-critical context}
+The \mppalong can be considered as a powerful COTS target for the design of hard-real time systems for several reasons. 
+
+\begin{description}
+    \item[Low energy consumption]
+    Although saving power is obviously beneficial to reduce fuel consumption in an aircraft, it also greatly helps the design of certifiable electronics cards. Indeed, it appears that, under specific conditions, the power consumption of the \mppalong is probably sufficiently low to cool it passively. Being able to avoid active cooling dramatically simplifies the design of electronics cards that are robust to vibrations constraints.
+
+    \item[Timing-compositionality]
+    The k1b cores exhibit the property of \emph{full timing-compositionality}, that, as we will further explain in Section~\ref{sec_stateOfTheArt_WCETestimation}, greatly simplifies the computation of the safe WCETs required for certification.
+
+    \item[High programmability]
+    On the \mppalong, very few operations are achieved implicitly - the hardware does not support cache coherency and messages are sent on the NoC explicitly. Although this specificity does not simplify programming, it does help in mastering the platform with software. In addition, NoC communications are heavily configurable using custom DMA micro-codes and the source routing mechanism. So, many different communication patterns can be implemented in a controlled way.
+
+    \item[Information availability]
+    The willingness of \kalray to share extensive information on the details of the architecture with their clients is a major asset from an industrial point of view. Indeed, as we will further explain in Section~\ref{sec_stateOfTheArt_WCETestimation}, the common industrial practice of computing WCET using \emph{static analysis} requires fine-grained models of the platform. Being able to obtain the informations to construct these models is thus of major importance.
+\end{description}
+
+
+
+\section{Additional constraints}
+\label{sec_systemModel_additionalConstraints}
+%\subsection{Industrial constraints}
+In an industrial environment, two criteria are of particular interest: cost and performance. Designing inexpensive avionics systems usually implies strong design constraints on the choice of hardware components, 
+on the architecture of systems, and on the certification of software. 
+As an example, current industrial practices privilege COTS over bespoke hardware components in many situations for both cost and performance reasons. Designing and producing \emph{powerful} custom-made processors requires important investments. In contrary, choosing COTS can dramatically reduce hardware design costs and narrow the design lead time overall. As a consequence, we will focus in this thesis on the challenges for designing software managing the caveats of a COTS platform such as the \mppalong. The architecture and implementation of such software are detailed in Chapters~\ref{chap_execModel} and~\ref{chap_implemExecMod}. 
+
+\begin{constraint}
+    \label{constr_cotsOnly}
+    COTS processors must be used for performance.
+\end{constraint}
+
+
+In safety critical systems, and in particular in avionics, industrial standards, such as the DO-178C~\cite{do178}, impose the computation of safe upper-bounds on the \emph{Worst-Case Execution Time} (or \emph{WCET}) of software programs. Computing such bounds can be challenging~\cite{Wilhelm2008} because execution times vary depending on the input parameters of the program and the current hardware state. Moreover, the WCET estimation problem is becoming increasingly harder with the emergence of multi and many-core processors~\cite{Wilhelm2012}. This is due to more complex internal behaviours, shared resources and interferences. The challenge is thus twofold: 1) since modern architecture are particularly complex to analyze, producing \emph{safe} WCET estimations appears especially difficult; and 2) WCET estimations must be \emph{tight} to avoid too much of resource over-provisioning that eventually leads to poor performance. In this context, the major constraint is to design systems that can be analyzed in order to \emph{make WCET computation feasible}. In Chapter~\ref{chap_boundingExecTimes}, we will overview the classical methods to estimate WCET on modern multi- and many-core platforms and how systems can be designed in order to be make their analysis practically doable.
+
+\begin{constraint}
+    \label{constr_staticAnalysis}
+    Computing WCET of program using static analysis techniques must be practically feasible.
+\end{constraint}
+
+
+
+Industrial practices usually prefer off-line rather than on-line scheduling for safety-critical applications. The reason for this is twofold. Firstly, the execution of off-line scheduled tasks can be achieved using simple scheduling tables. Since this requires a minimal run-time support, the certification cost of the system software can be kept low. And secondly, mapping tasks off-line simplifies the overall timing analysis of the system by avoid context-switching costs or preemption-related overheads. For this reason, we will focus in this thesis on the problems related to the off-line scheduling of safety-critical application only. We propose in Chapter~\ref{chap_budgetValidation} an off-line approach for mapping hard-time applications on the \mppalong.
+
+\begin{constraint}
+    \label{constr_schedOffLine}
+    Scheduling of tasks must be achieved off-line.
+\end{constraint}
+
+Finally, real avionics applications are large. Managing such applications requires approaches not only providing good results on small examples but also on industrial-sized problem instances. For this reason, our goal in this thesis will be not only to find solutions to the different problems related to mapping and scheduling but also to find solutions having a direct practical interest to solve current industrial problems. Consequently we will  evaluate the scalability of the mapping technique detailed in Chapter~\ref{chap_budgetValidation} against a real avionics application from Airbus.
+
+\begin{constraint}
+    \label{constr_scalability}
+    All mapping and scheduling techniques must scale to industrial-sized applications.
+\end{constraint}
+
+%Finally, real avionics applications are large. Managing such applications requires approaches not only providing good results on small examples but also on industrial-sized problem instances. For this reason, our goal in this thesis will be not only to find solutions to the different problems related to mapping and scheduling but also to find solutions having a direct practical interest to solve current industrial problems. Consequently we will  evaluate the scalability of the mapping technique detailed in Chapter~\ref{chap_budgetValidation} against a real avionics application from Airbus.
+
+
+
+
+\section{Summary}
+In this chapter, we have detailed the context of the thesis, its consequence on the input data of the various programming and scheduling problems to be solved, as well as the methods that can be envisaged to do so. We consider real avionics applications modeled by multi-rate parallel tasks with explicit data exchanges. Our goal will be to execute these applications on the \mppalong that can arguably be considered as a good candidate for the design of future avionics computers.
+The industrial context will limit our investigations to off-line mapping techniques in order to have better control of the target and to keep the certification costs as low as possible. Finally, since we aim at solving industrial problems, we will have a major requirement regarding the scalability of our solutions in order to deal with applications of realistic sizes as shown in Chapter~\ref{chap_budgetValidation}.
+
+
+
+\clearpage
+\subbiblio
+
+\end{document}
+
+
+

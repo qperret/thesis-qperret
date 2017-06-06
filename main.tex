@@ -1,0 +1,279 @@
+\documentclass[a4paper, twoside, 11pt]{book}
+\usepackage[left=1.3in, right=1in, top=1.3in, bottom=1.4in]{geometry}
+%Page de garde
+\usepackage[Ets=ISAE,ED=MITT-STICRT]{tlsflyleaf}
+
+% Fonts
+\usepackage{times}
+%\usepackage{mathpazo}
+%\usepackage{libertine}
+%\usepackage{palatino}
+%\linespread{1.05}
+\usepackage[scaled]{helvet} % ss
+%\usepackage{avant} % ss
+%\renewcommand{\familydefault}{\sfdefault}
+%\usepackage{courier} % tt
+\usepackage{inconsolata} % tt
+\normalfont
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+%\usepackage{sectsty}
+%\partfont{\sffamily}
+%\chapterfont{\sffamily}
+%\sectionfont{\sffamily}
+%\subsectionfont{\sffamily}
+%\subsubsectionfont{\sffamily}
+
+%\usepackage{tocloft}
+%\renewcommand{\cftpartfont}{\bf\sffamily}
+%\renewcommand{\cftchapfont}{\bf\sffamily}
+
+% Math
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+% Drawing
+\input{tikz_style.tex}
+
+% Links and biblio
+\usepackage[backref=true, backend=bibtex, style=numeric, sorting=none, firstinits=false, maxbibnames=99 ]{biblatex}
+\usepackage[hidelinks]{hyperref}
+
+%Header and footer
+\usepackage{emptypage}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\fancypagestyle{plain}{%
+    \fancyhf{}
+    \fancyhead[LE]{\slshape\nouppercase\leftmark}
+    \fancyhead[RO]{\slshape\nouppercase\rightmark}
+    \fancyfoot[LE,RO]{\thepage}
+    \renewcommand{\headrulewidth}{0pt} % and the line
+}
+
+\fancypagestyle{partstyle}{%
+    \fancyhf{}
+    \renewcommand{\headrulewidth}{0pt} % and the line
+}
+
+\fancypagestyle{chapstyle}{%
+    \fancyhf{}
+    \fancyfoot[LE,RO]{\thepage}
+    \renewcommand{\headrulewidth}{0pt} % and the line
+}
+\setlength{\headheight}{13.6pt}
+
+% Others
+\usepackage{tabularx}
+\usepackage{caption}
+\usepackage{standalone}
+\usepackage{xspace}
+\usepackage{gensymb} % Degree celsius symbol
+\usepackage{minitoc} % Summary for new chapters
+
+\usepackage[toc,page]{appendix}
+%\usepackage[none]{hyphenat}
+\usepackage{subcaption}
+
+% For back references on pages from Bibliography part
+\DefineBibliographyStrings{english}{%
+    backrefpage = {cited on page},% originally "cited on page"
+    backrefpages = {cited on pages},% originally "cited on pages"
+}
+
+% Commands
+\newcommand{\mppalong}{{\sc Kalray mppa}\textsuperscript{\textregistered}-256\xspace}
+\newcommand{\certainty}{{\sc Certainty}\xspace}
+\newcommand{\absint}{{\sc AbsInt}\xspace}
+\newcommand{\kalray}{{\sc Kalray}\xspace}
+\newcommand{\rosace}{{\sc Rosace}\xspace}
+\newcommand{\prelude}{{\sc Prelude}\xspace}
+\newcommand{\etal}{\emph{et al.}\xspace}
+\newcommand{\PN}{PN}
+\newcommand{\PC}{PC}
+\newcommand{\ION}{ION}
+\newcommand*\circled[1]{\textcircled{\raisebox{-0.9pt}{#1}}}
+\newcommand{\CPOpti}{{IBM ILOG CP Optimizer}\xspace}
+
+% Theorems
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\newtheorem{example}{Example}
+\newtheorem{constraint}{Constraint}
+\newtheorem{algo}{Algorithm}
+
+% To include properly the chapters
+\usepackage{subfiles}
+
+
+
+
+% TODO : page de garde univ de toulouse
+%\title{Language and methods for predictable execution on many-core processors}
+%\author{Quentin Perret}
+%\date{\today}
+\title{Predictable execution on many-core processors}
+\author{Quentin {\sc Perret}}
+\defencedate{25 avril 2017}
+\lab{ISAE/ONERA - Modélisation et Ingénierie des Systèmes (MOIS)}
+%\cotutelle{Institut de cotutelle}
+
+%% Directeur(s) de thèse
+\nboss{2}                                    % Nombre de directeur(s) de thèse
+\makesomeone{boss}{1}{Claire {\sc Pagetti}}{}{} % Sera affiché en premier
+\makesomeone{boss}{2}{Éric {\sc Noulard}}{}{}  % Sera affiché en second
+%% Referee
+\nreferee{2}
+\makesomeone{referee}{1}{Emmanuel {\sc Grolleau}}{}{}
+\makesomeone{referee}{2}{Laurent {\sc Pautet}}{}{}
+%% Jury
+\njudge{10}
+\makesomeone{judge}{1}{M. Jean-Luc {\sc Béchennec}}{École Centrale de Nantes}{Examinateur}
+\makesomeone{judge}{2}{M. Emmanuel {\sc Grolleau}}{ISAE-ENSMA}{Rapporteur}
+\makesomeone{judge}{3}{Mme. Claire {\sc Maiza}}{Grenoble INP}{Examinatrice}
+\makesomeone{judge}{4}{M. Pascal {\sc Maurère}}{Airbus Operations SAS}{Encadrant industriel}
+\makesomeone{judge}{5}{M. Éric {\sc Noulard}}{ONERA Toulouse}{Invité}
+\makesomeone{judge}{6}{Mme. Claire {\sc Pagetti}}{ONERA Toulouse}{Directrice de thèse}
+\makesomeone{judge}{7}{M. Laurent {\sc Pautet}}{Télécom ParisTech}{Rapporteur}
+\makesomeone{judge}{8}{Mme. Isabelle {\sc Puaut}}{INRIA Rennes}{Examinatrice}
+\makesomeone{judge}{9}{M. Pascal {\sc Sainrat}}{Université de Toulouse}{Encadrant}
+\makesomeone{judge}{10}{M. Benoît {\sc Triquet}}{Airbus Operations SAS}{Invité}
+
+%\njudge{3}
+%\makesomeone{judge}{1}{Premier MEMBRE}{Professeur d'Université}{Président du Jury}
+%\makesomeone{judge}{2}{Second MEMBRE}{Enseignant Chercheur}{Membre du Jury}
+%\makesomeone{judge}{3}{Troisième MEMBRE}{Chargé de recherche}{Membre du Jury}
+
+% Add bibliography file
+\bibliography{biblio}
+%\bibliographystyle{abbrv} 
+
+% Define a "\subbiblio" command that can be used in subfiles
+%\def\subbiblio{\bibliographystyle{unsrt}\bibliography{biblio}}
+
+%\def\subbiblio{\bibliography{biblio}} 
+\def\subbiblio{\printbibliography} 
+
+% On ne split pas les footnote
+\interfootnotelinepenalty=10000 
+
+% Numbering down to subsubsection
+\setcounter{secnumdepth}{3}
+
+% Pourcentage de remplissage d une page pour n'avoir que des figures et pas de txt
+\renewcommand{\floatpagefraction}{.8}
+
+
+\begin{document}
+\def\subbiblio{} % and undefine "\subbiblio" when compiling the whole document 
+\makeflyleaf
+%\maketitle
+
+\mbox{}
+\pagestyle{empty}
+\clearpage
+
+\input{chps/abstract.tex}
+\newpage
+
+\fancypagestyle{plain}{%
+    \fancyhf{}
+    \fancyfoot[LE,RO]{\thepage}
+    \renewcommand{\headrulewidth}{0pt} % and the line
+}
+\pagestyle{plain}
+\dominitoc
+\setcounter{tocdepth}{3}        % a enlever
+\clearpage
+\tableofcontents
+
+
+\clearpage
+\fancypagestyle{plain}{%
+    \fancyhf{}
+    \fancyhead[LE]{\slshape\nouppercase\leftmark}
+    \fancyhead[RO]{\slshape\nouppercase\rightmark}
+    \fancyfoot[LE,RO]{\thepage}
+    \renewcommand{\headrulewidth}{0pt} % and the line
+}
+\pagestyle{plain}
+%\thispagestyle{partstyle}
+\part{Introduction}
+\subfile{chps/chap_intro.tex}
+\subfile{chps/chap_systemModel.tex}
+
+\clearpage
+\thispagestyle{empty}
+\part{State of the Art}
+\subfile{chps/chap_stateOfTheArt.tex}
+\subfile{chps/chap_stateOfTheArt_2.tex}
+
+\clearpage
+\thispagestyle{empty}
+\part{Contributions}
+\subfile{chps/chap_execModel.tex}
+\subfile{chps/chap_framework.tex}
+\subfile{chps/chap_implemExecModel.tex}
+\subfile{chps/chap_validation.tex}
+%\subfile{chps/chap_allocation.tex}
+
+\clearpage
+\thispagestyle{empty}
+\part{Conclusion}
+\subfile{chps/chap_conclu.tex}
+
+
+
+
+
+
+
+\clearpage
+% Set page style clean
+\fancypagestyle{plain}{ \fancyhf{} \fancyfoot[LE,RO]{\thepage} } \pagestyle{plain}
+\part{Résumé étendu en français}
+\addtocontents{toc}{\protect\setcounter{tocdepth}{-1}}
+% Unset page style clean
+\fancypagestyle{plain}{ \fancyhf{} \fancyhead[LE]{\slshape\nouppercase\leftmark} \fancyhead[RO]{\slshape\nouppercase\rightmark} \fancyfoot[LE,RO]{\thepage} \renewcommand{\headrulewidth}{0pt} } \pagestyle{plain}
+\clearpage
+
+%TBD
+\subfile{chps/chap_resumeFr.tex}
+
+
+%\clearpage
+%\pagestyle{chapstyle}
+%\begin{appendices}
+%    \subfile{chps/appendix_overViewManyCore.tex}
+%\end{appendices}
+
+\clearpage
+\addtocontents{toc}{\protect\setcounter{tocdepth}{3}}
+
+
+\clearpage
+\fancypagestyle{plain}{% 
+    \fancyhf{} % clear all header and footer fields 
+    \fancyfoot[LE,RO]{\thepage}
+}
+\pagestyle{plain}
+
+\addcontentsline{toc}{part}{Bibliography}
+\printbibliography
+%\bibliographystyle{abbrv} 
+%\bibliography{biblio}
+
+\cleardoublepage
+\addcontentsline{toc}{part}{List of figures}
+\listoffigures
+
+\cleardoublepage
+\addcontentsline{toc}{part}{List of tables}
+\listoftables
+
+\cleardoublepage
+\end{document}
+

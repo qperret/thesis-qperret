@@ -1,0 +1,12 @@
+
+\begin{tikztimingtable}[timing/lslope=0, timing/slope=0, timing/coldist=0.8, timing/d/text/.append style={font=\rmfamily}, timing/d/background/.style={fill=white} ]
+    $c_1$ & 0.01L 3D{$\tau_1^1$} 6D{$\tau_1^4$} 3D{$\tau_1^6$} [fill=lightgray]6D{$\tau_1^8$} [fill=white]3L\\
+    $c_2$ & 0.01L [fill=lightgray]4D{$\tau_1^2$} 2D{$\tau_1^3$} [fill=white]1D{$\tau_1^5$} [fill=lightgray]4D{$\tau_1^7$} [fill=white]5D{$\tau_1^9$} [fill=white] 2S [fill=lightgray]3D{$\tau_1^{10}$} [fill=white]0.01L \\
+\extracode
+    \draw[-latex] (0, -2) -- (22, -2);
+    \draw[-latex] (0, 0) -- (22, 0);
+    \Cote[-8mm]{(0,-2)}{(21,-2)}{ \small \rmfamily \emph{Makespan = 21} }<h>
+\begin{background}
+    \vertlines[dashed]{}
+\end{background}
+\end{tikztimingtable}

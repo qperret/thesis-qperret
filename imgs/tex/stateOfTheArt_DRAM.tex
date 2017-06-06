@@ -1,0 +1,61 @@
+
+% For building the DRAM structure figure
+\newcommand\dramcell[2]{
+    \draw[color=black, thick]
+    (#1,#2) node[nmos, rotate=-90,anchor=S]{}
+    (#1 + 1.5, #2) to (#1 + 2, #2)
+    (#1 + 2, #2 - 1) to [pC] (#1 + 2, #2)
+    (#1 + 2, #2 -1) node[ground]{}
+    (#1,#2) node[circle, fill=black, minimum size=1.5mm, inner sep=0pt]{}
+    (#1 + 0.77 ,#2 + 0.97) node[circle, fill=black, minimum size=1.5mm, inner sep=0pt]{}
+    ;
+}
+
+\begin{tikzpicture}[font={\fontsize{15pt}{12}\selectfont}]
+    \ctikzset{bipoles/length=1cm}
+    
+    % Grid of cells
+    \dramcell{0}{0}
+    \dramcell{0}{3.3}
+    \dramcell{0}{6.6}
+    \dramcell{0}{9.9}
+    \dramcell{3.3}{0}
+    \dramcell{3.3}{3.3}
+    \dramcell{3.3}{6.6}
+    \dramcell{3.3}{9.9}
+    \dramcell{6.6}{0}
+    \dramcell{6.6}{3.3}
+    \dramcell{6.6}{6.6}
+    \dramcell{6.6}{9.9}
+    \dramcell{9.9}{0}
+    \dramcell{9.9}{3.3}
+    \dramcell{9.9}{6.6}
+    \dramcell{9.9}{9.9}
+
+    % Horizontal wires
+    \draw[thick] (-2,0.97) -- (10.685,0.97);
+    \draw[thick] (-2,4.27) -- (10.685,4.27);
+    \draw[thick] (-2,7.57) -- (10.685,7.57);
+    \draw[thick] (-2,10.87) -- (10.685,10.87);
+
+    % Vertical wires
+    \draw[thick] (0,0) -- (0,14.3);
+    \draw[thick] (3.3,0) -- (3.3,14.3);
+    \draw[thick] (6.6,0) -- (6.6,14.3);
+    \draw[thick] (9.9,0) -- (9.9,14.3);
+
+    % Big bordering square
+    \node[rectangle, draw, color=black, thick, anchor=south west, minimum width=17cm, minimum height=18cm, dashed] at (-3.9,-2) {};
+
+    % Other elements
+    \node[rectangle, draw, color=black, thick, anchor=south west, minimum width=12cm, minimum height=1cm, fill=white] (senseamp) at (-1,12.8) {Sense Amplifiers};
+    
+    \node[rectangle, draw, color=black, thick, anchor=south west, minimum width=12cm, minimum height=1cm] (coldec) at (-1,14.3) {Column decoder} ;
+    
+    \node[rectangle, draw, color=black, thick, anchor=south west, minimum width=13cm, minimum height=1cm, rotate=90] (rowdec) at (-2,-1) {Row decoder};
+
+    \node[rectangle, draw, color=black, thick, anchor=south west, minimum width=3cm, minimum height=1cm, fill=white] (dataio) at (-5,12.8) {Data I/O};
+
+    \draw[<->, >=latex, thick] (dataio.east) -- (senseamp.west);
+
+\end{tikzpicture}

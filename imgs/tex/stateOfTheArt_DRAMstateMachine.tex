@@ -1,0 +1,40 @@
+
+\begin{tikzpicture}[font={\fontsize{10pt}{12}\selectfont}]
+
+\draw (0,0) node[circle, draw, minimum size=1.8cm] (idle) {Idle};
+\draw (4,0) node[circle, draw, text width=1cm, align=center, minimum size=1.8cm] (refresh) {Refre- \\ shing};
+\draw (0,-3) node[circle, draw, text width=1cm, align=center, minimum size=1.8cm] (active) {Active \\ row};
+\draw (4,-6) node[circle, draw, minimum size=1.8cm] (writing) {Writing};
+\draw (-4,-6) node[circle, draw, minimum size=1.8cm] (reading) {Reading};
+\draw (0,-9) node[circle, draw, text width=1cm, align=center, minimum size=1.8cm] (precharge) {Pre- \\ charge};
+
+\draw (idle.-25) edge[-latex, thick] node[midway, edgelabel] {REF} (refresh.-155) ;
+\draw[->, >=latex, thick, dashed] (refresh.155) -- (idle.25) ;
+
+\draw (idle.south) edge[-latex, thick] node[edgelabel] {ACT}  (active.north) ;
+
+\draw (active.south) edge[-latex, thick] node[near start, edgelabel] {PRE} (precharge.north) ;
+
+\draw (active.east) edge[-latex, thick] node[midway, edgelabel] {WR}  (writing.north) ;
+\draw[->, >=latex, thick, dashed] (writing.135) -- (active.-45) ;
+
+\draw (active.west) edge[-latex, thick] node[midway, edgelabel] {RD} (reading.north) ;
+\draw[->, >=latex, thick, dashed] (reading.45) -- (active.-135) ;
+
+\draw (reading.-25) edge[-latex, thick] node[near start, edgelabel] {WR} (writing.-155) ;
+\draw (writing.155) edge[-latex, thick] node[near start, edgelabel] {RD} (reading.25) ;
+
+
+\draw (reading.south) edge[-latex, thick] node[midway, edgelabel] {PRE} (precharge.west) ;
+\draw (writing.south) edge[-latex, thick] node[midway, edgelabel] {PRE} (precharge.east) ;
+
+\draw[->, >=latex, thick, dashed] (precharge.south) |- (7,-10.5) |- (0,1.5) -- (idle.north);
+
+\draw (reading) edge[loop left, ->, >=latex, thick] node[very near end, edgelabel] {RD} (reading) ;
+\draw (writing) edge[loop right, ->, >=latex, thick] node[very near end, edgelabel] {WR} (writing) ;
+
+% Legend
+\draw[->, >=latex, thick] (-5.5,0) -- (-4.5,0) node[anchor=west, text width=1cm, align=left] {Command \\ Sequence};
+\draw[->, >=latex, thick, dashed] (-5.5,-1) -- (-4.5,-1) node[anchor=west, text width=1cm, align=left] {Automatic \\ Sequence};
+
+\end{tikzpicture}

@@ -1,0 +1,22 @@
+
+\pgfplotstableread{imgs/tex/dat/implemExecModel_WCETvsNbBufs.dat}\implemexecmodelWcetVsNbBufsdat
+\pgfplotsset{compat=1.5}
+\begin{tikzpicture}
+    \begin{axis}[
+        xmin=2,
+        xmax=34,
+        ymin=500,
+        ymax=5900,
+        ylabel = {Hypervisor WCET ($\mu s$)},
+        xlabel = {Queue size},
+        xtick={0,4,8,12,16,20,24,28,32},
+        ytick={1000,2000,3000,4000,5000},
+        yticklabels={1.66,3.33,5.00,6.66,8.33},
+        grid=both,
+        width=10cm,
+        height=7cm
+        ]
+        \addplot table[x index=0, y index=1]{\implemexecmodelWcetVsNbBufsdat};
+    \end{axis}
+
+\end{tikzpicture}

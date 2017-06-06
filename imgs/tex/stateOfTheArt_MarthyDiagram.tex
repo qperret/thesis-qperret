@@ -1,0 +1,18 @@
+
+
+\begin{tikztimingtable}[timing/lslope=0, timing/slope=0, timing/coldist=0.5, timing/d/text/.append style={font=\rmfamily}, timing/d/background/.style={fill=white} ]
+    {\rmfamily Core 1}  & 7D{$\tau_1$} [fill=lightgray]6D{\sc Marthy} [fill=white]7D{$\tau_1$} \\
+    {\rmfamily System bus   }  & 4D{\textit{Core 1}} 4D{\textit{Core 2}} [fill=lightgray]4D{\textit{Core 1}} [fill=darkgray, text=white]4D{\textit{Core 2}} [fill=white, text=black]4D{\textit{Core 1}} \\
+    {\rmfamily Core 2}  &  9D{$\tau_2$} [fill=darkgray, text=white]8D{\sc Marthy} [fill=white, text=black]3D{$\tau_2$}\\
+\extracode
+\begin{background}
+    \draw (7,2) node[anchor=south, inner sep=1pt] {\rmfamily \scriptsize Exception};
+    \draw (9,-5) node[anchor=north, inner sep=1pt] {\rmfamily \scriptsize Exception};
+    \draw[thick, -latex] (7,2) -- (7,1);
+    \draw[thick, -latex] (9,-5) -- (9,-4);
+    \draw[thick] (7,0) -- (8,-1);
+    \draw[thick] (13,0) -- (12,-1);
+    \draw[thick] (9,-3) -- (12,-2);
+    \draw[thick] (17,-3) -- (16,-2);
+\end{background}
+\end{tikztimingtable}

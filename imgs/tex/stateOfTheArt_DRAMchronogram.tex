@@ -1,0 +1,35 @@
+
+\begin{tikztimingtable}[timing/coldist=0.5, timing/d/text/.append style={font=\rmfamily}, timing/d/background/.style={fill=white}]
+    {\rmfamily CLK} &  10{0.5C} M 62{0.5C} M 16{0.5C} M 22{0.5C} M 24{0.5C} M 10{0.5C} M 12{0.5C}\\
+    {\rmfamily CMD} &  U 3D{ACT}     UMU   3D{RD}   U 3D{RD}   U 3D{RD}      15U 3D{PRE}     UMU  3D{ACT}    3D{ACT}    UMU  3D{WR}    3U 3D{RD}      UMU  4U         3U 3D{PRE}    UMU 3D{ACT}    UMU  4U U\\
+    {\rmfamily ADDR} & U 3D{B1.R1}   UMU   3D{B1.R1} U 3D{B1.R1} U 3D{B1.R1} 15U 3D{B1.R1}   UMU  3D{B1.R2}  3D{B2.R1}  UMU  3D{B1.R2} 3U 3D{B2.R1}   UMU  4U         3U 3D{B1.R2}  UMU 3D{B1.R1}  UMU  4U U\\
+    {\rmfamily DATA} & U 3U          UMU   3U 11U  4D{Req.1} 4D{Req.2} 4D{Req.3} 3U          UMU  3U         3U         UMU  3U        4D{Req. 4} 2U  UMU  4D{Req. 5} 3U 3U         UMU 3U         UMU  4D{Req. 6} U\\
+\extracode
+
+\Cote[-5mm]{(4,-6)}{(10,-6)}{ \tiny $t_{RCD}$ }<h>
+\Cote[-5mm]{(10,-6)}{(14,-6)}{ \tiny $t_{bst}$ }<h>
+\Cote[-10mm]{(10,-6)}{(21,-6)}{ \tiny $t_{CAS}$ }<h>
+\Cote[-5mm]{(21,-6)}{(25,-6)}{ \tiny $t_{bst}$ }<h>
+\Cote[-5mm]{(25,-6)}{(29,-6)}{ \tiny $t_{bst}$ }<h>
+\Cote[-5mm]{(29,-6)}{(33,-6)}{ \tiny $t_{bst}$ }<h>
+
+\Cote[-5mm]{(36,-6)}{(42,-6)}{ \tiny $t_{RP}$ }<h>
+\Cote[-5mm]{(42,-6)}{(51,-6)}{ \tiny $t_{RCD}$ }<h>
+%\Cote[-5mm]{(51,-6)}{(55,-6)}{ \tiny $t_{bst}$ }<h>
+\Cote[-10mm]{(48,-6)}{(54,-6)}{ \tiny $t_{WTR}$ }<h>
+
+%\Cote[-5mm]{(57,-6)}{(60,-6)}{ \tiny $t_{CAS}$ }<h>
+\Cote[-5mm]{(60,-6)}{(64,-6)}{ \tiny $t_{bst}$ }<h>
+
+\Cote[-10mm]{(55,-6)}{(70,-6)}{ \tiny $t_{WR}$ }<h>
+
+\Cote[-5mm]{(70,-6)}{(76,-6)}{ \tiny $t_{RP}$ }<h>
+
+\Cote[-5mm]{(79,-6)}{(83,-6)}{ \tiny $t_{bst}$ }<h>
+
+\begin{background}
+    \vertlines[dashed]{}
+\end{background}
+\end{tikztimingtable}
+
+

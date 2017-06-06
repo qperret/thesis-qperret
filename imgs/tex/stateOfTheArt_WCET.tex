@@ -1,0 +1,29 @@
+
+\pgfplotstableread{imgs/tex/dat/stateOfTheArt_WCET.dat}\stateoftheartWCETdat
+\begin{tikzpicture}
+    \begin{axis}[
+        xmin=0,
+        xmax=80,
+        ymin=0,
+        ymax=20,
+        xticklabels={ },
+        yticklabels={ },
+        axis x line=middle,
+        axis y line=middle,
+        every axis plot post/.style={mark options={fill=black}},
+        ticks=none,
+        width=10cm,
+        height=5cm,
+        ]
+        \addplot+[ycomb, black, thick] table[x index=0, y index=1]{\stateoftheartWCETdat};
+    \end{axis}
+    \Cote[0.5cm]{(1.5,0)}{(6,0)}{ \scriptsize \normalfont Measured execution times}
+    \Cote[1cm]{(1,0)}{(7.2,0)}{ \scriptsize \normalfont Possible execution times}
+    \Cote[1.5cm]{(0.5,0)}{(7.8,0)}{ \scriptsize \normalfont Bounds on execution times}
+    \node at (6, 1.5) [anchor=west] {{\scriptsize Real WCET}}; 
+    \node at (7.3, 0.8) [anchor=west] {{\scriptsize Estimated WCET}}; 
+    \draw[->, >=latex, thick] (7, 1.3) -- (7.2, 0.15);
+    \draw[->, >=latex, thick] (8.5, 0.6) -- (7.8, 0);
+    \node at (7.9, -0.2) [anchor=west] {{\tiny time}}; 
+    \node at (-0.2,1 ) [anchor=west, rotate=90] {{\tiny distribution of times}}; 
+\end{tikzpicture}

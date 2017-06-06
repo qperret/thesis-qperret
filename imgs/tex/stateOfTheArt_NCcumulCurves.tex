@@ -1,0 +1,30 @@
+
+\pgfplotstableread{imgs/tex/dat/stateOfTheArt_cumulCurves.dat}\stateoftheartCumulCurvesdat
+%\pgfplotstableread{dat/stateOfTheArt_cumulCurves.dat}\stateoftheartCumulCurvesdat
+\begin{tikzpicture}
+    \begin{axis}[
+        xmin=0,
+        xmax=10,
+        ymin=0,
+        ymax=5.5,
+        xticklabels={ },
+        yticklabels={ },
+        axis x line=middle,
+        axis y line=middle,
+        ylabel = {\scriptsize Cumulative data amount},
+        y label style={at={(axis description cs:-0.02,.5)},rotate=90,anchor=south},
+        xlabel = {\scriptsize Time},
+        x label style={at={(axis description cs:0.5,-0.04)},anchor=north},
+        ticks=none,
+        width=10cm,
+        height=5cm
+        ]
+        \addplot[mark=none, thick] table[x index=0, y index=1]{\stateoftheartCumulCurvesdat};
+        \addplot[mark=none, thick ] table[x index=0, y index=2]{\stateoftheartCumulCurvesdat};
+    \end{axis}
+    \draw[latex-latex, dashed, thick] (2.1, 1.2) -- (5.7, 1.2) node [very near end, above] {\scriptsize $d(t)$};
+    \draw[latex-latex, densely dotted, thick] (3.7, 0.25) -- (3.7, 1.55) node [very near start, left] {\scriptsize $x(t) - y(t)$};
+
+    \draw (7.1,2.1) node {\scriptsize $y(t)$};
+    \draw (5.1,2.7) node {\scriptsize $x(t)$};
+\end{tikzpicture}

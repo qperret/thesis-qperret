@@ -1,0 +1,37 @@
+\begin{tikzpicture}[font={\fontsize{10pt}{12}\selectfont}]
+    \linespread{1}
+\node[ovale, node distance=1.5cm, thick] (bin) {Binary};
+\node[draw, rectangle,minimum size=1cm, below of=bin, node distance=1.5cm, thick] (cfgconst)  {CFG const.};
+\node[ovale, below of=cfgconst, node distance=1.5cm, thick] (cfg) {CFG};
+
+\node[draw, rectangle, node distance=3cm, right of=cfgconst, thick] (flowfacts) {
+    \begin{tikzpicture}
+        \node[draw, rectangle,minimum size=1cm, node distance=1.5cm, text width=2cm, align=center, thick] (ff_val)  {Value \\ analysis};
+        \node[draw, rectangle,minimum size=1cm, below of=ff_val, node distance=1.2cm, text width=2cm, align=center, thick] (ff_loop)  {Loop bound \\ analysis};
+        \node[draw, rectangle,minimum size=1cm, below of=ff_loop, node distance=1.2cm, text width=2cm, align=center, thick] (ff_cflow)  {Control flow \\ analysis};
+        \node[draw, rectangle,minimum size=1cm, below of=ff_cflow, node distance=1.2cm, text width=2cm, align=center, thick] (ff_cflow)  {Annotations};
+    \end{tikzpicture}
+};
+
+\node[ovale, right of=flowfacts, node distance=3.2cm, text width=2cm, align=center, thick] (anotcfg) {Annotated CFG};
+\node[draw, rectangle,minimum size=1cm, right of=anotcfg, node distance=3cm, text width=2cm, align=center, thick] (microarch)  {Micro- \\ architectural \\ analysis};
+\node[ovale, right of=microarch, node distance=3cm, text width=2cm, align=center, thick] (bblock) {Basic blocks \\ timing info.};
+\node[draw, rectangle,minimum size=1cm, right of=bblock, node distance=3cm, text width=2cm, align=center, thick] (glob)  {Global bound \\ analysis};
+\node[ovale, right of=glob, node distance=3cm, text width=2cm, align=center, thick] (WCET) {WCET};
+
+
+\draw[->, >=latex, thick] (bin.south) -- (cfgconst.north) ;
+\draw[->, >=latex, thick] (cfgconst.south) -- (cfg.north) ;
+\path[->, >=latex, thick, draw] (cfg.east) -| ($(cfg.east)!0.4!(flowfacts.west)$) |- (flowfacts.west) ;
+\draw[->, >=latex, thick] (flowfacts.east) -- (anotcfg.west) ;
+\draw[->, >=latex, thick] (anotcfg.east) -- (microarch.west) ;
+\draw[->, >=latex, thick] (microarch.east) -- (bblock.west) ;
+\draw[->, >=latex, thick] (bblock.east) -- (glob.west) ;
+\path[->, >=latex, thick, draw] (anotcfg.north) -- +(0, 0.7) -| (glob.north) ;
+\draw[->, >=latex, thick] (glob.east) -- (WCET.west) ;
+
+
+    \Cote[-1.9cm]{($(cfg.south)-(0,0.4)$)}{($(anotcfg.south)-(0,0.4)$)}{\emph{Step 1: find possible paths}}<h>
+    \Cote[-2.64cm]{($(anotcfg.south)-(0,0.4)$)}{($(bblock.south)-(0,0.4)$)}{\emph{Step 2: find execution times of paths}}<h>
+    \Cote[-2.64cm]{($(bblock.south)-(0,0.4)$)}{($(WCET.south)-(0,0.4)$)}{\emph{Step 3: find max. execution time}}<h>
+\end{tikzpicture}

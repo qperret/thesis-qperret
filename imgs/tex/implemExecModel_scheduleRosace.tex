@@ -1,0 +1,20 @@
+
+
+
+\begin{tikztimingtable}[timing/coldist=1, timing/d/text/.append style={font=\rmfamily}, timing/d/background/.style={fill=white}]
+    $\tau_1$    & 1M 2D{engine}2U2D{h\_filter}2U2D{Va\_ctrl} M 2D{engine}2U M 2D{engine}2U2D{h\_filter} M 2D{engine}2U 1M  \\
+    $\tau_2$    & 1M 2D{elevator}2D{ac\_dyn.}2D{az\_filter}2D{alt\_hold}2D{Vz\_ctrl}  M  2D{elevator}2D{ac\_dyn.}  M  2D{elevator}2D{ac\_dyn.}2D{az\_filter}  M  2D{elevator}2D{ac\_dyn.} 1M \\
+    $\tau_3$    & 1M 4U2D{q\_filter}4U M 4U M 4U2D{q\_filter} M 4U 1M\\
+    $\tau_4$    & 1M 4U2D{Va\_filter}4U M 4U M 4U2D{Va\_filter} M 4U 1M\\
+    $\tau_5$    & 1M 4U2D{Vz\_filter}4U M 4U M 4U2D{Vz\_filter} M 4U 1M\\
+\extracode
+\Cote[-5mm]{(1,-8)}{(11,-8)}{ $n=1$ }<h>
+\Cote[-5mm]{(12,-8)}{(16,-8)}{ $n=2$ }<h>
+\Cote[-5mm]{(17,-8)}{(23,-8)}{ $n=3$ }<h>
+\Cote[-5mm]{(24,-8)}{(28,-8)}{ $n=4$ }<h>
+\begin{background}
+    \vertlines[dashed]{}
+\end{background}
+\end{tikztimingtable}
+
+

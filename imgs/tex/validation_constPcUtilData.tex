@@ -1,0 +1,41 @@
+   
+\newcommand\ttask[7]{\draw  ( #1 , #2 ) node[draw, thick, fill= #3 , rectangle, anchor=south west, inner sep=0pt, minimum width=#4cm, minimum height= #5cm #7] { #6 };}
+
+\begin{tikzpicture}
+    \draw (12,0) node { };
+    \draw[thick, -latex] (0,-1) -- (10,-1);
+    \draw[thick, -latex] (0,-1) -- (0,-0.3) node[left, midway] {$pc$};
+    \ttask{1}{-1}{gray}{2}{0.5}{}{}
+    \ttask{7}{-1}{gray}{2}{0.5}{}{}
+    
+    \ttask{1}{-2}{}{2}{0.5}{}{, pattern=north west lines}
+    \ttask{1}{-3}{}{2}{0.5}{}{, pattern=north west lines}
+    \ttask{1}{-4}{}{2}{0.5}{}{, pattern=north west lines}
+    \ttask{7}{-2}{}{2}{0.5}{}{, pattern=north west lines}
+    \ttask{7}{-3}{}{2}{0.5}{}{, pattern=north west lines}
+    \ttask{7}{-4}{}{2}{0.5}{}{, pattern=north west lines}
+    
+    \draw[thick, -latex] (0,-2) -- (10,-2);
+    \draw[thick, -latex] (0,-2) -- (0,-1.3) node[left, midway] {$\delta_c$};
+    \draw[thick, -latex] (0,-3) -- (10,-3);
+    \draw[thick, -latex] (0,-3) -- (0,-2.3) node[left, midway] {$\delta_b$};
+    \draw[thick, -latex] (0,-4) -- (10,-4);
+    \draw[thick, -latex] (0,-4) -- (0,-3.3) node[left, midway] {$\delta_a$};
+    \ttask{1}{-3}{lightgray}{2}{0.5}{}{}
+    \ttask{1}{-4}{lightgray}{2}{0.5}{}{}
+    \ttask{7}{-2}{lightgray}{2}{0.5}{}{}
+    
+    \ttask{1}{0}{lightgray}{2}{0.8}{$\delta_a$}{}
+    \ttask{1}{0.8}{lightgray}{2}{0.6}{$\delta_b$}{}
+    \ttask{7}{0}{lightgray}{2}{1.2}{$\delta_c$}{} 
+    \draw[thick, -latex] (0,0) -- (10,0);
+    %\draw[thick, -latex, align=left] (0,0) -- (0,2) node[left, near start] {$\sum \sqcap \left( d(\delta_x,pc) ,\right.$ \\ $ \left. N_{flit}^{total}(m_x) + N_{flit}^{gap}  \right)$};
+    \draw[thick, -latex, align=left] (0,0) -- (0,2) node[left, near start] {$\sum \sqcap \left( d(\delta_x,pc) , N_{flits}^{total+gap}  \right)$};
+    
+    \draw[thick, latex-latex] (3.2, 0) -- (3.2, 0.8) node[midway, right] {$N_{flit}^{total} ( m_a ) + N_{flit}^{gap}$};
+    \draw[thick, latex-latex] (3.2, 0.8) -- (3.2, 1.4) node[midway, right] {$N_{flit}^{total} ( m_b ) + N_{flit}^{gap}$};
+    \draw[thick, latex-latex] (9.2, 0) -- (9.2, 1.2) node[midway, right] {$N_{flit}^{total} ( m_c ) + N_{flit}^{gap}$};
+    
+    \draw[thick, dashed] (0, 1.6) -- (10, 1.6);
+    \draw (-0.2, 1.6) node[anchor=east] {$N_{flit}^{PC}(pc)$};
+\end{tikzpicture}

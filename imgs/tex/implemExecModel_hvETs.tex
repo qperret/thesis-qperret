@@ -1,0 +1,32 @@
+
+% Thus figure is an exception. It should be compiled using lualatex
+
+%\pgfplotstableread{imgs/tex/dat/implemExecModel_hvETs.dat}\implemExecModelHvEts
+\pgfplotstableread{dat/implemExecModel_hvETs.dat}\implemExecModelHvEts
+\usepgfplotslibrary{patchplots}
+\pgfplotsset{compat=1.8}
+\begin{tikzpicture}
+    \begin{axis}[
+        view={15}{20},
+        xlabel style = {sloped},
+        ylabel style = {sloped},
+        zlabel style = {sloped},
+        xlabel = {\small Buffer size},
+        ylabel = {\small Nb. of buffers},
+        zlabel = {\small Duration},
+        xtick={0,32,64,96,128,160,192,224,256},
+        ytick={0,8,16,24,32},
+        ztick={0,4000,8000,12000,16000},
+        colorbar,
+        width=12cm,
+        height=8cm,
+        ]
+
+        \addplot3[
+            surf,
+            mesh/cols=8192,
+        ] 
+        table{\implemExecModelHvEts};
+
+    \end{axis}
+\end{tikzpicture}

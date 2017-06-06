@@ -1,0 +1,138 @@
+
+
+
+% X, Y, W, H, label, txt, moreparams
+\newcommand\niceRect[7]{
+    \node[rectangle, draw, color=black, thick, anchor=south west, minimum width=#3cm, minimum height=#4cm, inner sep=0pt #7] (#5) at (#1,#2) {#6};
+}
+
+
+
+
+\begin{tikzpicture}[font={\fontsize{12pt}{12}\selectfont}]
+
+    \niceRect{-3.5}{-0.5}{9.5}{8}{}{}{}
+    \node[anchor=south] at (1, 7.65) {\emph{Cluster 1}};
+    \niceRect{8.5}{-0.5}{10.5}{8}{}{}{}
+    \node[anchor=south] at (13.5, 7.65) {\emph{Cluster 2}};
+
+
+    \niceRect{-3}{0.0}{1}{0.5}{pe0tx}{\small PE0}{}
+    \niceRect{-3}{1.3}{1}{0.5}{pe1tx}{\small PE1}{}
+    \niceRect{-3}{2.6}{1}{0.5}{pe2tx}{\small PE2}{}
+    \niceRect{-3}{3.9}{1}{0.5}{pe3tx}{\small PE3}{}
+    \niceRect{-3}{5.2}{1}{0.5}{pe4tx}{\small PE4}{}
+    \niceRect{-3}{6.5}{1}{0.5}{pe5tx}{\small PE5}{}
+
+    
+    \niceRect{0}{4}{1.5}{3}{init1}{}{,pattern=north east lines}
+    \niceRect{0}{4.7}{1.5}{1.9}{virtInit1}{}{,fill=white}
+    \niceRect{0}{5.3}{1.5}{0.3}{}{\scriptsize myvar}{, fill=lightgray}
+    \node[anchor=east] at (0,4.7) {\tiny \ttfamily 0x20000};
+    \draw[-latex, thick] (0.25, 4.7) -- (0.25, 5.3);
+    \node[anchor=west] at( 0.25, 5) { \tiny \ttfamily 0xA00};
+    \draw[thick, dotted] (pe5tx.north east) -- (virtInit1.north west);
+    \draw[thick, dotted] (pe3tx.south east) -- (virtInit1.south west);
+    \niceRect{-3.25}{3.65}{5}{3.6}{}{\small $PN_A^1$ \hspace{0.6cm}  }{,dashed}
+
+    \niceRect{0}{0}{1.5}{3}{virtInit0}{}{,pattern=north east lines}
+    \niceRect{0}{0.7}{1.5}{1.6}{virtInit0}{}{,fill=white}
+    \niceRect{0}{1.5}{1.5}{0.6}{}{\scriptsize myarray[]}{, fill=lightgray}
+    \node[anchor=east] at (0,0.7) {\tiny \ttfamily 0x20000};
+    \draw[-latex, thick] (0.25, 0.7) -- (0.25, 1.5);
+    \node[anchor=west] at( 0.25, 1.1) { \tiny \ttfamily 0xFC8};
+    \draw[thick, dotted] (pe2tx.north east) -- (virtInit0.north west);
+    \draw[thick, dotted] (pe0tx.south east) -- (virtInit0.south west);
+    \niceRect{-3.25}{-0.25}{5}{3.6}{}{\small $PN_B^1$ \hspace{0.6cm}  }{,dashed}
+
+
+    \node[anchor=south] at (3.75, 7) {\small SRAM};
+    \niceRect{3}{0}{1.5}{7}{phy0}{}{,pattern=north east lines}
+    \node[anchor=east] at (3,7) {\tiny \ttfamily 0x20000};
+    \node[anchor=east] at (3,0) {\tiny \ttfamily 0x00000};
+
+    \niceRect{3}{2.7}{1.5}{1.9}{phyInit1}{}{,fill=white}
+    \niceRect{3}{3.3}{1.5}{0.3}{}{\scriptsize myvar}{, fill=lightgray}
+    \node[anchor=east] at (3,2.7) {\tiny \ttfamily 0x0E000};
+    \draw[-latex, thick] (3.25, 2.7) -- (3.25, 3.3);
+    \node[anchor=west] at( 3.25, 3) {\tiny \ttfamily 0xA00};
+    \draw[thick, dotted] (virtInit1.north east) -- (phyInit1.north west);
+    \draw[thick, dotted] (virtInit1.south east) -- (phyInit1.south west);
+
+    \niceRect{3}{0.4}{1.5}{1.6}{phyInit0}{}{,fill=white}
+    \niceRect{3}{1.2}{1.5}{0.6}{}{\scriptsize myarray[]}{, fill=lightgray}
+    \node[anchor=east] at (3,0.3) {\tiny \ttfamily 0x00F00};
+    \draw[-latex, thick] (3.25, 0.4) -- (3.25, 1.2);
+    \node[anchor=west] at (3.25, 0.8) { \tiny \ttfamily 0xFC8};
+    \draw[thick, dotted] (virtInit0.north east) -- (phyInit0.north west);
+    \draw[thick, dotted] (virtInit0.south east) -- (phyInit0.south west);
+
+    \niceRect{5.5}{3.25}{1}{0.5}{dmatx}{\small DMA}{,fill=white}
+    \draw[thick, dotted] (phy0.north east) -- (dmatx.north west);
+    \draw[thick, dotted] (phy0.south east) -- (dmatx.south west);
+
+    \niceRect{9}{3.75}{1}{0.5}{chrx1}{\small Rx 1}{}
+    \niceRect{9}{2.75}{1}{0.5}{chrx0}{\small Rx 0}{}
+    \node[fill=black, circle, inner sep=0pt, minimum size=0.2cm] (dmarx) at (8.5, 3.5) {};
+    \draw[thick, -latex] (dmatx.east) -- (dmarx);
+    \draw[thick, -latex] (dmarx) -- (chrx0.west);
+    \draw[thick, -latex] (dmarx) -- (chrx1.west);
+    
+    
+    \niceRect{11}{0}{1.5}{7}{phy1}{}{,pattern=north east lines}
+    \node[anchor=south] at (11.75, 7) {\small SRAM};
+    \node[anchor=east] at (11,7) {\tiny \ttfamily 0x20000};
+    \node[anchor=east] at (11,0) {\tiny \ttfamily 0x00000};
+    
+    \niceRect{11}{3.7}{1.5}{2.7}{phyRx1}{}{,fill=white}
+    \niceRect{11}{5.9}{1.5}{0.3}{}{\scriptsize myvar'}{, fill=lightgray}
+    \node[anchor=west] at (12.5,3.7) {\tiny \ttfamily 0x12000};
+    \draw[-latex, thick] (11.25, 3.7) -- (11.25, 5.9);
+    \node[anchor=west] at( 11.25, 4.8) {\tiny \ttfamily 0xAB40};
+    \draw[thick, dotted] (chrx1.north east) -- (phyRx1.north west);
+    \draw[thick, dotted] (chrx1.south east) -- (phyRx1.south west);
+
+
+
+    \niceRect{11}{0.3}{1.5}{2.2}{phyRx0}{}{,fill=white}
+    \niceRect{11}{1}{1.5}{0.6}{}{\scriptsize myarray[]'}{, fill=lightgray}
+    \node[anchor=west] at (12.5,0.3) {\tiny \ttfamily 0x00BC0};
+    \draw[-latex, thick] (11.25, 0.3) -- (11.25, 1);
+    \node[anchor=west] at( 11.25, 0.65) {\tiny \ttfamily 0xC20};
+    \draw[thick, dotted] (chrx0.north east) -- (phyRx0.north west);
+    \draw[thick, dotted] (chrx0.south east) -- (phyRx0.south west);
+
+    \niceRect{14}{0}{1.5}{3}{}{}{,pattern=north east lines}
+    \niceRect{14}{0.6}{1.5}{2.2}{virRx0}{}{,fill=white}
+    \niceRect{14}{1.3}{1.5}{0.6}{}{\scriptsize myarray[]'}{, fill=lightgray}
+    \node[anchor=west] at (15.5,0.7) {\tiny \ttfamily 0x20000};
+    \draw[-latex, thick] (14.25, 0.6) -- (14.25, 1.3);
+    \node[anchor=west] at( 14.25, 0.95) {\tiny \ttfamily 0xC20};
+    \draw[thick, dotted] (phyRx0.north east) -- (virRx0.north west);
+    \draw[thick, dotted] (phyRx0.south east) -- (virRx0.south west);
+    \niceRect{13.75}{-0.25}{5}{3.6}{}{\small \hspace{0.6cm}$PN_B^2$}{,dashed}
+
+
+    \niceRect{14}{4}{1.5}{3}{}{}{,pattern=north east lines}
+    \niceRect{14}{4.2}{1.5}{2.7}{virRx1}{}{,fill=white}
+    \niceRect{14}{6.4}{1.5}{0.3}{}{\scriptsize myvar'}{, fill=lightgray}
+    \node[anchor=west] at (15.5, 4.3) {\tiny \ttfamily 0x20000};
+    \draw[-latex, thick] (14.25, 4.2) -- (14.25, 6.4);
+    \node[anchor=west] at( 14.25, 5.2) {\tiny \ttfamily 0xAB40};
+    \draw[thick, dotted] (phyRx1.north east) -- (virRx1.north west);
+    \draw[thick, dotted] (phyRx1.south east) -- (virRx1.south west);
+    \niceRect{13.75}{3.65}{5}{3.6}{}{\small \hspace{0.6cm}$PN_A^2$}{,dashed}
+
+    \niceRect{17.5}{0.0}{1}{0.5}{pe0rx}{\small PE0}{}
+    \niceRect{17.5}{1.3}{1}{0.5}{pe1rx}{\small PE1}{}
+    \niceRect{17.5}{2.6}{1}{0.5}{pe2rx}{\small PE2}{}
+    \niceRect{17.5}{3.9}{1}{0.5}{pe3rx}{\small PE3}{}
+    \niceRect{17.5}{5.2}{1}{0.5}{pe4rx}{\small PE4}{}
+    \niceRect{17.5}{6.5}{1}{0.5}{pe5rx}{\small PE5}{}
+
+    \draw[thick, dotted] (virRx0.north east) -- (pe2rx.north west);
+    \draw[thick, dotted] (virRx0.south east) -- (pe0rx.south west);
+    \draw[thick, dotted] (virRx1.north east) -- (pe5rx.north west);
+    \draw[thick, dotted] (virRx1.south east) -- (pe3rx.south west);
+
+\end{tikzpicture}

@@ -1,0 +1,47 @@
+
+\begin{tikzpicture}[font={\fontsize{10pt}{12}\selectfont}]
+
+    \draw (-2,-2) node[rectangle, draw, thick, anchor=south west, inner sep=0pt, minimum width=0.05cm, minimum height=4cm, fill=black ] (mux0) {};
+
+    \draw (0,1.5) node[circle, draw, thick, inner sep=0pt, minimum width=1cm] (p111) {$t_{1,1}^1$};
+    \draw (0,0) node[circle, draw, thick, inner sep=0pt, minimum width=1cm] (p112) {$t_{1,1}^2$};
+    \draw (0,-1.5) node[circle, draw, thick, inner sep=0pt, minimum width=1cm] (p113) {$t_{1,1}^3$};
+    
+    \draw (2,-2.75) node[rectangle, draw, thick, anchor=south west, inner sep=0pt, minimum width=0.05cm, minimum height=5.5cm, fill=black ] (mux1) {};
+    
+    \draw (4,2.25) node[circle, draw, thick, inner sep=0pt, minimum width=1cm] (p121) {$t_{1,2}^1$};
+    \draw (4,0.75) node[circle, draw, thick, inner sep=0pt, minimum width=1cm] (p122) {$t_{1,2}^2$};
+    \draw (4,-0.75) node[circle, draw, thick, inner sep=0pt, minimum width=1cm] (p123) {$t_{1,2}^3$};
+    \draw (4,-2.25) node[circle, draw, thick, inner sep=0pt, minimum width=1cm] (p124) {$t_{1,2}^4$};
+    
+    \draw (6,-2.75) node[rectangle, draw, thick, anchor=south west, inner sep=0pt, minimum width=0.05cm, minimum height=5.5cm, fill=black ] (mux2) {};
+    
+    \draw (8,0.75) node[circle, draw, thick, inner sep=0pt, minimum width=1cm] (p131) {$t_{1,3}^1$};
+    \draw (8,-0.75) node[circle, draw, thick, inner sep=0pt, minimum width=1cm] (p132) {$t_{1,3}^2$};
+    
+    \draw (10,-1.25) node[rectangle, draw, thick, anchor=south west, inner sep=0pt, minimum width=0.05cm, minimum height=2.5cm, fill=black ] (mux3) {};
+    
+    \draw[thick, -latex] (mux0.east|-p111) -- (p111);
+    \draw[thick, -latex] (mux0.east|-p112) -- (p112);
+    \draw[thick, -latex] (mux0.east|-p113) -- (p113);
+
+    \draw[thick, -latex] (p111) -- (p111-|mux1.west);
+    \draw[thick, -latex] (p112) -- (p112-|mux1.west);
+    \draw[thick, -latex] (p113) -- (p113-|mux1.west);
+
+    \draw[thick, -latex] (mux1.east|-p121) -- (p121);
+    \draw[thick, -latex] (mux1.east|-p122) -- (p122);
+    \draw[thick, -latex] (mux1.east|-p123) -- (p123);
+    \draw[thick, -latex] (mux1.east|-p124) -- (p124);
+    
+    \draw[thick, -latex] (p121) -- (p121-|mux2.west);
+    \draw[thick, -latex] (p122) -- (p122-|mux2.west);
+    \draw[thick, -latex] (p123) -- (p123-|mux2.west);
+    \draw[thick, -latex] (p124) -- (p124-|mux2.west);
+    
+    \draw[thick, -latex] (mux2.east|-p131) -- (p131);
+    \draw[thick, -latex] (mux2.east|-p132) -- (p132);
+    
+    \draw[thick, -latex] (p131) -- (p131-|mux3.west);
+    \draw[thick, -latex] (p132) -- (p132-|mux3.west);
+\end{tikzpicture}

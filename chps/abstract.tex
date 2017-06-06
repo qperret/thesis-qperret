@@ -1,0 +1,84 @@
+\documentclass[main.tex]{subfiles}
+\begin{document}
+%\mbox{}\vspace{8cm}
+%\begin{flushright}
+%    \it
+%    \Large
+% À Benji et Barbara
+%\end{flushright}
+%
+%\cleardoublepage
+%
+%
+%\section*{Acknowledgements}
+%TODO
+%
+%
+%
+%\cleardoublepage
+
+\mbox{}\vspace{8cm}
+\begin{center}
+    \large
+    This work was funded by Airbus and the French National Association for Research and Technology (ANRT) under grant n° 2013/1394.
+\end{center}
+
+\cleardoublepage
+
+\begin{center} \LARGE \bf
+Abstract
+\vspace{5mm} \end{center}
+This thesis focuses on the design of safety-critical avionics embedded systems. During the last 25 years, the need for computational power aboard aircrafts has been constantly growing. Embedded applications are getting bigger as new functionalities are introduced. Simultaneously, the current trend in avionics is going towards deeply integrated systems, following the Integrated Modular Avionics (or IMA) philosophy where several functions can be co-hosted on a single execution platform. To support these evolutions, aircraft manufacturers need to bring more computational power aboard and to share it safely among multiple systems. The emergence of promising technologies such as many-core processors thus appears as a good opportunity to tackle these two challenges at once.
+However, safety-critical systems are required to meet not only functional, but also non-functional requirements resulting from safety constraints, performance issues or control theory. In particular, control laws are verified for specific latencies, thus imposing stringent \emph{timing} constraints on how they can be implemented in software. As for the other parts of the aircraft, safety-related software components are also legally required to be \emph{certified}. Thus, among other constraints, certification authorities require the validation of the timing behaviour of these systems by computing safe upper-bounds on their Worst Case Execution Times (or WCET). Unfortunately, computing WCETs is becoming increasingly harder as the architectures of micro-processors are becoming more and more complex, thus dramatically increasing software certification efforts.\\
+
+In this thesis, we study the suitability of the distributed architecture of many-core processors for the design of highly constrained real-time systems as is the case in avionics. We firstly propose a thorough analysis of an existing COTS processor, namely the \mppalong, and we identify some of its shared resources to be paths of interference when shared among several applications. We provide an execution model to restrict the access to these resources in order to mitigate their impact on WCETs and to temporally isolate co-running applications. We describe in detail how such an execution model can be implemented with a hypervisor which practically provides the expected property of temporal isolation at run-time. Based on this, we formalize a notion of \emph{partition} which represents the association of an application with a resource \emph{budget}. In our approach, an application placed in a partition is guaranteed to be temporally isolated from applications placed in other partitions. Then, assuming that applications and resource budgets are given, we propose to use constraint programming in order to verify automatically whether the amount of resources requested by a budget is sufficient to meet all of the application's constraints. Simultaneously, when a budget is valid, our approach computes a schedule of the application on the subset of the processor's resources allocated to it.  \\
+
+Overall, we provide an end-to-end integration framework enabling to share a many-core architecture safely, and to leverage its parallel computational power for highly constrained workloads. By doing so, we pave the way for the design of future embedded avionics computers based on many-core processors.
+
+\cleardoublepage
+
+
+
+\begin{center} \LARGE \bf
+Résumé
+\vspace{5mm} \end{center}
+La problématique considérée dans cette thèse concerne la conception des systèmes avioniques embarqués soumis à des contraintes de sûreté de fonctionnement. 
+Les besoins en puissance de calcul à bord des avions augmentent régulièrement depuis 25 ans.
+Les applications embarquées grossissent à cause de l'ajout de nouvelles fonctionnalités. 
+De plus, les choix de conception tendent vers des systèmes toujours plus intégrés. 
+En particulier l'Avionique Modulaire Intégrée (ou \emph{IMA} en anglais) permet l'hébergement de plusieurs fonctions sur une seule cible d'exécution. 
+Pour accompagner ces évolutions, les avionneurs doivent apporter davantage de puissance de calcul à bord et être capables de la partager entre plusieurs systèmes. 
+L'émergence de technologies prometteuses telles que les processeurs pluri-c\oe{}urs semble ainsi être une bonne opportunité pour résoudre ces deux problèmes.
+Cependant, les systèmes embarqués critiques doivent non seulement respecter des exigences fonctionnelles, mais aussi des exigences non fonctionnelles découlant de contraintes de sûreté, de performance ou bien de l'automatique.
+En particulier, des contraintes \emph{temporelles} fortes sont imposées sur leur implantation logicielle. 
+Comme pour les autres parties d'un avion, les composants logiciels critiques se doivent d'être \emph{certifiés}. Ainsi, les autorités de certification imposent notamment qu'une validation temporelle de ces systèmes soit effectuée par le calcul du temps d'exécution pire-cas (ou \emph{WCET} en anglais) des programmes. Malheureusement, calculer des WCETs peu pessimistes s'avère être de plus en plus difficile à mesure que les architectures des processeurs se complexifient. \\
+
+Dans cette thèse, nous étudions l'adéquation de l'architecture distribuée des processeurs pluri-c\oe{}urs avec les besoins des concepteurs de systèmes temps réels avioniques. Nous proposons d'abord une analyse détaillée d'un processeur sur étagère (COTS), le \mppalong, et nous identifions certaines de ses ressources partagées comme étant les goulots d'étranglement limitant à la fois la performance et la prédictibilité lorsque plusieurs applications s'exécutent. 
+Pour limiter l'impact de ces ressources sur les WCETs, nous définissons formellement un modèle d'exécution isolant temporellement les applications concurrentes. 
+Son implantation est réalisée au sein d’un hyperviseur offrant à chaque application un environnement d'exécution isolé et assurant le respect des comportements attendus en ligne.
+Sur cette base, nous formalisons la notion de \emph{partition} comme l'association d'une application avec un \emph{budget} de ressources matérielles. Dans notre approche, les applications s'exécutant au sein d'une partition sont garanties d'être temporellement isolées des autres applications. Ainsi, étant donné une application et son budget associé, nous proposons d'utiliser la programmation par contraintes pour vérifier automatiquement si les ressources allouées à l'application sont suffisantes pour permettre son exécution de manière satisfaisante. Dans le même temps, dans le cas où un budget est effectivement valide, notre approche fournit un ordonnancement et un placement complet de l'application sur le sous-ensemble des ressources du processeur allouées à sa partition.\\
+
+De manière générale, nous proposons un atelier d'intégration de bout en bout qui permet de partager une architecture pluri-c\oe{}urs de manière sûre et d'exploiter sa puissance de calcul parallèle pour des applications contraintes. De ce fait, cet atelier est un premier pas vers la conception de calculateurs avioniques futurs à base de processeurs pluri-c\oe{}urs.
+
+\cleardoublepage
+
+
+%\section*{Remerciements}
+\begin{center} \LARGE \bf
+Remerciements
+\vspace{10mm} \end{center}
+
+
+Je tiens tout d'abord à remercier l'ensemble des membres de mon jury: Isabelle Puaut pour avoir accepté de le présider;  Emmanuel Grolleau et Laurent Pautet pour la patience et la bienveillance dont ils ont fait preuve en tant que rapporteurs; et enfin Claire Maiza et Jean-Luc Béchennec pour avoir accepté d'en faire partie. \\
+
+Un très grand merci à mes cinq encadrants pour leur optimisme et pour avoir tenu bon par vents et marées. Merci à Claire Pagetti pour sa patience et sa rigueur dont j'ai eu bien besoin pendant ces trois années. Merci à Éric Noulard pour sa présence et ses conseils et à qui je souhaite sincèrement le meilleur dans sa nouvelle vie. Merci à Pascal Maurère pour sa gentillesse et son humanité qui m'ont beaucoup touché et m'ont aidé à ne pas baisser les bras dans les moments difficiles. Merci à Benoît Triquet grâce à qui j'ai énormément appris et qui n'apparait pas officiellement comme encadrant de ce travail pour des raisons purement administratives ne représentant pas la réalité. Et merci à Pascal Sainrat pour avoir toujours continué à être présent, et ce malgré toutes les difficultés et les changements d'encadrement. \\
+
+Je tiens également à remercier sincèrement Michel Pasquier qui, bien qu'ayant suivi un chemin différent, a été à l'initiative de ce projet de thèse et sans qui je ne serais donc pas là où j'en suis aujourd'hui. Merci à toutes celles et ceux que j'ai pu rencontrer à Airbus ou à l'ONERA et grâce a qui j'ai pris un vrai plaisir à aller travailler pendant trois ans. \\
+
+Je voudrais remercier du fond du cœur toute ma famille et tous mes amis qui m'ont toujours soutenu et supporté (même quand j'étais très pénible). Et bien sûr, merci à toi Ingrid, pour avoir rendu ces années tellement plus belles.\\
+
+Je dédie mon travail à Barbara qui a tracé le chemin que nous avons parcouru et à Benji qui me manque chaque jour.
+
+\cleardoublepage
+
+\end{document}

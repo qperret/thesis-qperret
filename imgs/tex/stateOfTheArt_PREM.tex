@@ -1,0 +1,33 @@
+
+
+
+\tikzset{EXEC/.style={timing/d/background/.style={fill=white}, }}
+\tikzset{MEM/.style={timing/d/background/.style={pattern=north east lines}}}
+\tikzset{COMP/.style={timing/d/background/.style={pattern=north west lines}}}
+\tikzset{IO/.style={timing/d/background/.style={fill=gray}}}
+\begin{tikztimingtable}[timing/lslope=0, timing/slope=0, timing/coldist=0.5]
+    $\tau_1$ &      L [COMP]D G [MEM]D G [EXEC]2D G [COMP]D 8L [COMP]D G [MEM]D G [EXEC]2D G [COMP]D 8L [COMP]D G [MEM]D G [EXEC]2D G [COMP]D L\\
+    $\tau_2$        & L 5L  [COMP]1.5D G [MEM]D G [EXEC]2D G [MEM]0.5D G [EXEC]D G [MEM]D G [COMP]D 5L   [COMP]1.5D G [MEM]D G [EXEC]2D G [MEM]0.5D G [EXEC]D G [MEM]D 7L\\
+    $\tau_1^{io}$   & [IO] LLL 2D 3.5L 0.5D 7L 2D 3.5L 0.5D 7L 2D LL \\
+    $\tau_2^{io}$   & [IO] L 8L 1.5D 0.5L D 10L 1.5D 0.5L D 8L \\
+\extracode
+\begin{pgfonlayer}{foreground}
+    \draw[->, >=latex, thick] (9, -3) -- (14, 0) node [very near start, right] {{\scriptsize \normalfont input data}};
+    \draw[->, >=latex, thick] (19, 0) -- (21.5, -3) node [very near start, right] {{\scriptsize \normalfont output data}};
+
+    \node at (1, -8) [rectangle, draw=black, thick, minimum size = 10pt ]{ };
+    \node at (2, -8) [anchor=west] {{\footnotesize \normalfont Execution phase} };
+    
+    \node at (20, -8) [rectangle, draw=black, thick, minimum size = 10pt, pattern=north east lines ]{ };
+    \node at (21, -8) [anchor=west] {{\footnotesize \normalfont Memory phase} };
+
+    \node at (1, -9) [rectangle, draw=black, thick, minimum size = 10pt, fill=gray ]{ };
+    \node at (2, -9) [anchor=west] {{\footnotesize \normalfont I/O flows} };
+    
+    \node at (20, -9) [rectangle, draw=black, thick, minimum size = 10pt, pattern=north west lines ]{ };
+    \node at (21, -9) [anchor=west] {{\footnotesize \normalfont Compatible intervals} };
+    
+\end{pgfonlayer}
+\end{tikztimingtable}
+
+
