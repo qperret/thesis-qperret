@@ -24,6 +24,7 @@ This repository contains the source tex files of Quentin Perret's PhD dissertati
         * imgs/tex/dat : .dat files used in pgfplot to draw curves
             * imgs/tex/dat/chap_XXX_YYY.dat : Data YYY of chapter XXX 
             * imgs/tex/dat/all_ZZZ.dat : Shared data ZZZ
+* tlsflyleaf\* : University of Toulouse flyleaf
 
 ## Convention
 * Chapters should:
