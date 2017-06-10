@@ -7,7 +7,7 @@
 \minitoc
 
 
-In this chapter, we present the inputs of the PhD work imposed by the industrial context. We firstly describe in Section~\ref{sec_systemModel_appModel} an abstract model of the avionics applications under considerations in this thesis. Secondly, we provide in Section~\ref{sec_systemModel_archiMppa} extensive details on the COTS target that was chosen by Airbus and explain the motivation behind this choice. Finally, we study in Section~\ref{sec_systemModel_additionalConstraints} the constraints that must be met in an aerospace and industrial context, such as the need for WCET computability or the limitations on eligible mapping and scheduling techniques to keep certification costs low.
+In this chapter, we present the inputs of the PhD work imposed by the industrial context. We firstly describe in Section~\ref{sec_systemModel_appModel} an abstract model of the avionics applications under consideration. Secondly, we provide in Section~\ref{sec_systemModel_archiMppa} extensive details on the COTS target that was chosen by Airbus and motivate this choice. Finally, we clarify in Section~\ref{sec_systemModel_additionalConstraints} the constraints that must be met in an aerospace and industrial context, such as the need for WCET computability or the limitations on eligible mapping and scheduling techniques to keep certification costs low.
 
 
 %In this chapter, we will detail the consequences of the aerospace and industrial context of this thesis. 
@@ -20,7 +20,7 @@ In this chapter, we present the inputs of the PhD work imposed by the industrial
 \section{Application model}
 \label{sec_systemModel_appModel}
 
-In this section, we formalize the model of applications that we will consider in the rest of the dissertation. This model is representative of existing control applications at Airbus and is thus imposed in the context of this thesis.
+In this section, we formalize the model of applications considered in the rest of the dissertation. This model is representative of existing control applications at Airbus and is thus imposed in the context of this thesis.
 An application is a tuple $< \tau , \delta >$ where $\tau$ is a finite set of parallel tasks and $\delta$ is a finite set of data. 
 
 \subsection{Parallel task model}
@@ -48,9 +48,9 @@ The data in $\delta = \{ \delta_1 , \ldots , \delta_m \}$ are produced and consu
     \item $cons : \delta \mapsto 2^S$ associates each data to the set of consuming sub-tasks.
 \end{itemize}
 
-Any two sub-tasks can exchange data, including pairs of sub-tasks that are not constrained by precedence relations. However, two sub-tasks constrained by precedence relations are always assumed to exchange data. Indeed, requiring a specific execution order of sub-tasks that do not communicate is not consistent semantically.
+Any two sub-tasks can exchange data, including pairs of sub-tasks that are not constrained by precedence relations. However, two sub-tasks constrained by precedence relations are always assumed to exchange data. Indeed, specifying a specific execution order of sub-tasks that do not communicate is usually not necessary in practice.
 
-No assumption is made on the tasks periods' ratios. However, the model allows precedence relations only between sub-tasks of the same task, thus having the same period. Multi-rate precedences are not allowed. No such constraint is imposed on data. A data can be produced in a task and consumed in an other, even if the two tasks do not run at the same pace. The only assumption on such multi-rate data is that the consumed value is always the freshest one, that is, the one that was produced during the last activation of the producing sub-task. Doing so enables to bound the freshness of the consumed multi-rate data. The underlying assumption here is that the treatment made by task on multi-rate data is robust to its maximum production-to-consumption delay, that is equal to the period of the producing sub-task.
+No assumption is made on the tasks periods. However, the model allows precedence relations only between sub-tasks of the same task, thus having the same period. Multi-rate precedences are not allowed. No such constraint is imposed on data. A data can be produced in a task and consumed in an other, even if the two tasks do not run at the same pace. The only assumption on such multi-rate data is that the consumed value is always the freshest one, that is, the one that was produced during the last activation of the producing sub-task. Doing so enables to bound the freshness of the consumed multi-rate data. The underlying assumption here is that the treatment made by a task of any multi-rate data is robust to its maximum production-to-consumption delay, that is equal to the period of the producing sub-task.
 
 
 \begin{example}[Example of application model]
@@ -160,7 +160,7 @@ The \mppalong is organized in 16 \emph{compute clusters} dedicated to run user c
 As depicted in Figure~\ref{fig_execModel_MPPAComputeCluster}, each compute cluster features:
 \begin{itemize}
     \item 16 cores, denoted as the \emph{Processing Elements} (or \emph{PEs}), for executing user code;
-    \item 1 additional core denoted as \emph{Resource Manager} or (\emph{RM}) in charge of managing and configuring the resources that are local to the cluster;
+    \item 1 additional core denoted as \emph{Resource Manager} or (\emph{RM}) in charge of managing and configuring the cluster's local resources;
     \item 1 \emph{Debug and Support Unit} (or \emph{DSU}) to ease programming and debugging with JTAG;
     \item 1 \emph{Direct Memory Access} (or \emph{DMA}) unit to automate data sending over the NoC;
     \item 2MiB of shared SRAM organized in 16 independent banks;
@@ -385,20 +385,20 @@ In this example, the core 3 of cluster B requires to write data in the bank 4 of
 
 
 \subsection{Compatibility with a safety-critical context}
-The \mppalong can be considered as a powerful COTS target for the design of hard-real time systems for several reasons. 
+The \mppalong can be considered as a good COTS target candidate for the design of hard-real time systems for several reasons listed below. 
 
 \begin{description}
     \item[Low energy consumption]
-    Although saving power is obviously beneficial to reduce fuel consumption in an aircraft, it also greatly helps the design of certifiable electronics cards. Indeed, it appears that, under specific conditions, the power consumption of the \mppalong is probably sufficiently low to cool it passively. Being able to avoid active cooling dramatically simplifies the design of electronics cards that are robust to vibrations constraints.
+    Although saving power is obviously beneficial to reduce fuel consumption in an aircraft, it also greatly helps the design of certifiable electronics cards. Indeed, it appears that, under specific conditions, the power consumption of the \mppalong is probably sufficiently low to cool with purely passive systems. Being able to avoid active cooling dramatically simplifies the design of electronics cards that are robust to vibrations constraints.
 
     \item[Timing-compositionality]
     The k1b cores exhibit the property of \emph{full timing-compositionality}, that, as we will further explain in Section~\ref{sec_stateOfTheArt_WCETestimation}, greatly simplifies the computation of the safe WCETs required for certification.
 
     \item[High programmability]
-    On the \mppalong, very few operations are achieved implicitly - the hardware does not support cache coherency and messages are sent on the NoC explicitly. Although this specificity does not simplify programming, it does help in mastering the platform with software. In addition, NoC communications are heavily configurable using custom DMA micro-codes and the source routing mechanism. So, many different communication patterns can be implemented in a controlled way.
+    On the \mppalong, very few operations are achieved implicitly - the hardware does not support cache coherency and messages are sent on the NoC explicitly. Although this specificity does not simplify programming, it does help in mastering the platform with software. In addition, NoC communications are heavily configurable using custom DMA micro-codes and the source routing mechanism. So, many different communication patterns can be implemented in a very flexible but still controlled way.
 
     \item[Information availability]
-    The willingness of \kalray to share extensive information on the details of the architecture with their clients is a major asset from an industrial point of view. Indeed, as we will further explain in Section~\ref{sec_stateOfTheArt_WCETestimation}, the common industrial practice of computing WCET using \emph{static analysis} requires fine-grained models of the platform. Being able to obtain the informations to construct these models is thus of major importance.
+    The willingness of \kalray to share extensive information regarding their architecture's details with clients is a significant asset from an industrial point of view. Indeed, as we will further explain in Section~\ref{sec_stateOfTheArt_WCETestimation}, the common industrial practice of computing WCET using \emph{static analysis} requires fine-grained models of the platform. Being able to obtain the informations to construct these models is thus of major importance.
 \end{description}
 
 
@@ -416,7 +416,7 @@ As an example, current industrial practices privilege COTS over bespoke hardware
 \end{constraint}
 
 
-In safety critical systems, and in particular in avionics, industrial standards, such as the DO-178C~\cite{do178}, impose the computation of safe upper-bounds on the \emph{Worst-Case Execution Time} (or \emph{WCET}) of software programs. Computing such bounds can be challenging~\cite{Wilhelm2008} because execution times vary depending on the input parameters of the program and the current hardware state. Moreover, the WCET estimation problem is becoming increasingly harder with the emergence of multi and many-core processors~\cite{Wilhelm2012}. This is due to more complex internal behaviours, shared resources and interferences. The challenge is thus twofold: 1) since modern architecture are particularly complex to analyze, producing \emph{safe} WCET estimations appears especially difficult; and 2) WCET estimations must be \emph{tight} to avoid too much of resource over-provisioning that eventually leads to poor performance. In this context, the major constraint is to design systems that can be analyzed in order to \emph{make WCET computation feasible}. In Chapter~\ref{chap_boundingExecTimes}, we will overview the classical methods to estimate WCET on modern multi- and many-core platforms and how systems can be designed in order to be make their analysis practically doable.
+In safety critical systems, and in particular in avionics, industrial standards, such as the DO-178C~\cite{do178}, impose the computation of safe upper-bounds on the \emph{Worst-Case Execution Time} (or \emph{WCET}) of software programs. Computing such bounds can be challenging~\cite{Wilhelm2008} because execution times vary depending on input parameters and current hardware states. Moreover, the WCET estimation problem is becoming increasingly harder with the emergence of multi and many-core processors~\cite{Wilhelm2012}. This is due to more complex internal behaviours, shared resources and interferences. The challenge is thus twofold: 1) since modern architecture are particularly complex to analyze, producing \emph{safe} WCET estimations appears especially difficult; and 2) WCET estimations must be \emph{tight} to avoid too much resource over-provisioning that eventually leads to poor performance. In this context, the major constraint is to design systems that can be analyzed in order to \emph{make WCET computation feasible}. In Chapter~\ref{chap_boundingExecTimes}, we will overview the classical methods to estimate WCET on modern multi- and many-core platforms and how systems can be designed in order to be make their analysis practically doable.
 
 \begin{constraint}
     \label{constr_staticAnalysis}
@@ -425,14 +425,15 @@ In safety critical systems, and in particular in avionics, industrial standards,
 
 
 
-Industrial practices usually prefer off-line rather than on-line scheduling for safety-critical applications. The reason for this is twofold. Firstly, the execution of off-line scheduled tasks can be achieved using simple scheduling tables. Since this requires a minimal run-time support, the certification cost of the system software can be kept low. And secondly, mapping tasks off-line simplifies the overall timing analysis of the system by avoid context-switching costs or preemption-related overheads. For this reason, we will focus in this thesis on the problems related to the off-line scheduling of safety-critical application only. We propose in Chapter~\ref{chap_budgetValidation} an off-line approach for mapping hard-time applications on the \mppalong.
+
+Industrial practices imply that off-line scheduling is often preferred to on-line scheduling when dealing with safety-critical applications. The reason for this is twofold. Firstly, the execution of off-line scheduled tasks can be achieved using simple scheduling tables. Since this requires a minimal run-time support, the certification cost of the system software can be kept low. And secondly, mapping tasks off-line simplifies the overall timing analysis of the system by avoid context-switching costs or preemption-related overheads. For this reason, we will focus in this thesis on the problems related to the off-line scheduling of safety-critical application only. We propose in Chapter~\ref{chap_budgetValidation} an off-line approach for mapping hard-time applications on the \mppalong.
 
 \begin{constraint}
     \label{constr_schedOffLine}
     Scheduling of tasks must be achieved off-line.
 \end{constraint}
 
-Finally, real avionics applications are large. Managing such applications requires approaches not only providing good results on small examples but also on industrial-sized problem instances. For this reason, our goal in this thesis will be not only to find solutions to the different problems related to mapping and scheduling but also to find solutions having a direct practical interest to solve current industrial problems. Consequently we will  evaluate the scalability of the mapping technique detailed in Chapter~\ref{chap_budgetValidation} against a real avionics application from Airbus.
+Finally, modern avionics applications are massive. Managing such applications requires approaches not only providing good results on small examples but also on industrial-sized problem instances. For this reason, our goal in this thesis will be not only to find solutions to the different problems related to mapping and scheduling but also to find solutions having a direct practical interest to solve current industrial problems. Consequently we will evaluate the scalability of the mapping technique detailed in Chapter~\ref{chap_budgetValidation} over a real avionics application from Airbus.
 
 \begin{constraint}
     \label{constr_scalability}
@@ -445,7 +446,7 @@ Finally, real avionics applications are large. Managing such applications requir
 
 
 \section{Summary}
-In this chapter, we have detailed the context of the thesis, its consequence on the input data of the various programming and scheduling problems to be solved, as well as the methods that can be envisaged to do so. We consider real avionics applications modeled by multi-rate parallel tasks with explicit data exchanges. Our goal will be to execute these applications on the \mppalong that can arguably be considered as a good candidate for the design of future avionics computers.
+In this chapter, we have detailed the context of the thesis, its consequences on the input data of the various programming and scheduling problems to be solved, as well as the methods that can be envisaged to do so. We consider real avionics applications modeled by multi-rate parallel tasks with explicit data exchanges. Our goal will be to execute these applications on the \mppalong that can arguably be considered as a good candidate for the design of future avionics computers.
 The industrial context will limit our investigations to off-line mapping techniques in order to have better control of the target and to keep the certification costs as low as possible. Finally, since we aim at solving industrial problems, we will have a major requirement regarding the scalability of our solutions in order to deal with applications of realistic sizes as shown in Chapter~\ref{chap_budgetValidation}.
 
 
