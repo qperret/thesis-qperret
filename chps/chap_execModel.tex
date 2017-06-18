@@ -16,7 +16,7 @@
 %\end{verbatim}
 
 
-In this chapter, based on the detailed description of the \mppalong of Chapter~\ref{chap_systemModel}, we provide mathematical expressions enabling the computation of interference penalties when accessing shared resources such as the local SRAM banks, the Network on Chip or the external DDR-SDRAM. We will evaluate the cost of an approach considering worst-case pathological competitors to safely bound the WCET of an application independently from its co-runners. Finally, we will provide an execution model which mitigates this cost by restricting the behaviour of applications when sharing resources.
+In this chapter, based on the detailed description of the \mppalong of Chapter~\ref{chap_systemModel}, we provide mathematical expressions enabling the computation of interference penalties when accessing shared resources such as the local SRAM banks, the Network on Chip or the external DDR-SDRAM. We assess the cost of an approach considering worst-case pathological competitors to safely bound the WCET of an application independently from its co-runners. Finally, we provide an execution model which mitigates this cost by restricting the behaviour of applications when sharing resources.
 
 
 \section{Bounds on shared resources access time}
@@ -28,7 +28,7 @@ The idea is firstly to identify the possibilities of bounding access time to tho
 
 \subsection{SRAM bank access time}
 \label{ssec_execModel_SRAMaccessModel}
-The access to local SRAM banks from the cores in a compute cluster are ruled by a complex arbitration policy.
+Accesses to SRAM banks in compute clusters are ruled by a complex arbitration policy.
 Fortunately, the access protocol for SRAM is simple and no refresh is required. Assuming no DMA reception and a service time of $T_{access}^{SRAM} = 10 \times t_{ck}$ (with $t_{ck}$ the duration of a clock cycle) for a single memory access of 8 bytes (9 cycles of latency and 1 cycle per double-word consecutively fetched), the maximum duration of a memory transaction of $S_{trans}$ bytes initiated by a PE, the RM, the DSU or the DMA in emission can be upper-bounded with equation~\ref{eq_execModel_SRAMtrans} when the number of competitors accessing the same bank is greater than 1. 
 
 
@@ -45,7 +45,7 @@ The $N_{comp}^{SRAM}$ value depends on the initiator. For example, a cache miss 
     Let us assume a PE reading 64 bytes from one local SRAM bank. The transaction's address is aligned on a multiple of 8 bytes. With $S_{trans} = 64$ and $N_{comp}^{SRAM} = 64$, this transaction can take in the absolute worst case $T_{trans}^{SRAM} = 5120$ clock cycles. If the PE is guaranteed to access the bank without competitors, the equation~\ref{eq_execModel_SRAMtrans} does not apply any more and the transaction's duration will last for $17$ cycles. Indeed $N_{comp}^{SRAM}=1$ and $T_{access}^{SRAM}$ is payed only for the first double-word access (the others will follow consecutively without repaying for $T_{access}^{SRAM}$ every time).
 \end{example}
 
-The only way to \emph{safely} bound SRAM access time of PEs requires to consider the absolute worst competition if no assumption can be made about the workload of other PEs. As explained in Example~\ref{ex_execModel_SRAMaccessTime}, the cost of the worst case competition can be prohibitive. 
+The only way to \emph{safely} bound SRAM access time of PEs requires to consider the absolute worst bank-level competition if no assumption can be made on workloads ran by other PEs. As explained in Example~\ref{ex_execModel_SRAMaccessTime}, the cost of worst case competition can be prohibitive. 
 Moreover, in case of DMA receptions, $T_{trans}^{SRAM}$ should be extended with the maximum stalling time because of DMA Rx transactions. This stalling time depends on the NoC parameters and the memory areas assigned to Rx channels. Yet, any bound on the DMA Rx interference penalty can be summed to $T_{trans}^{SRAM}$ safely thanks to the property of full timing compositionality of the k1b cores.
 
 Anyway, the cost of bounding SRAM access time can be very large if the worst-case competition needs to be assumed. Reducing the cost of such an assumption will be one of the goal of our execution model.
@@ -94,7 +94,7 @@ The time required for all the flits of a transaction of $S_{trans}$ bytes to cro
 If we do not make assumptions on the routes or the injection rates of packets, bounding the WCTT on the NoC \emph{with conflicts} can be impossible because of the possibility of deadlocks as explained in Section~\ref{sssec_stateOfTheArt_Noc_deadlocks}. What we emphasize here is the need for precise assumptions on the NoC access patterns to be able to use it under real-time constraints.
 As an example, we refer the reader to the contributions of Dupont de Dinechin \etal~\cite{Dinechin2014} and Giannopoulou \etal~\cite{Giannopoulou2015} for WCTT computation using Network Calculus where NoC accesses were assumed to be rate-limited at source and to follow pre-assigned routes.
 
-Overall, bounding WCTTs on the NoC cannot be done without assumption on its utilization by applications. Providing a framework enabling to use the NoC in a predictable manner will be the second goal of our execution model.
+Overall, bounding WCTTs on the NoC cannot be done without assumption on its utilization by applications. Providing users with a framework enabling predictable NoC usage will be the second goal of our execution model.
 
 \subsection{DRAM access time}
 \label{ssec_execModel_DRAMaccessTime}
@@ -198,7 +198,7 @@ Hosting several applications on a single target while making them independent fr
 In order to mitigate the interferences when accessing shared resources, we propose an execution model which constrains the behaviour of applications in exchange of improving their predictability and enabling better access to shared resources. The idea is to provide temporally isolated environments, denoted as \emph{partitions}, to applications. 
 
 \begin{definition}[Partition]
-A partition is an execution environment in which the temporal behaviour of an application does not depend on the behaviour of other applications that do not belong to the same partition. 
+A partition is an execution environment in which the temporal behaviour of an application does not depend on the behaviour of applications not belonging to the same partition. 
 \end{definition}
 
 Our execution model imposes specific access patterns to sensible resources that are likely to be shared by several partitions in order to enforce interference-free executions of the isolated applications. By doing so, we aim at executing partitions in a \emph{time-composable} manner.
