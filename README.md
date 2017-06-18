@@ -4,6 +4,7 @@ This repository contains the source tex files of Quentin Perret's PhD dissertati
 * Title: _Predictable execution on many-core processors_
 * Context: Industrial agreement Airbus/ONERA
 * Defense: 25/04/2017 at ISAE-Supaero in Toulouse, France
+* Supervised by Claire Pagetti (ONERA), Éric Noulard (ONERA), Pascal Maurère (Airbus), Benoît Triquet (Airbus) and Pascal Sainrat (IRIT)
 
 ## Directoty content
 * README.md : this file
@@ -26,7 +27,7 @@ This repository contains the source tex files of Quentin Perret's PhD dissertati
             * imgs/tex/dat/all_ZZZ.dat : Shared data ZZZ
 * tlsflyleaf\* : University of Toulouse flyleaf
 
-## Convention
+## Workflow
 * Chapters should:
     * be packaged in documents based on the "subfiles" class
     * be compilable independentely from each others.
