@@ -30,7 +30,7 @@ The set of tasks $\tau = \{ \tau_1 , \ldots , \tau_n \}$ is composed of several 
         \begin{itemize}
             \item $C_i^j$ the WCET of the sub-task;
             \item $M_i^j$ the memory footprint of the sub-task, including the size of code, static and read-only data;
-            \item $I_i^j$ and $O_i^j$ respectively the input and output buffers~\footnote{The I/O buffers are used to represent the interactions with external components, i.e. transactions with the external DDR-SDRAM of the reception/emission of Ethernet frames.} in which $\tau_i^j$ reads or writes.
+            \item $I_i^j$ and $O_i^j$ respectively the input and output buffers~\footnote{The I/O buffers are used to represent the interactions with external components, i.e. transactions with the external DDR-SDRAM or reception/emission of Ethernet frames.} in which $\tau_i^j$ reads or writes.
         \end{itemize}
 
     \item $P_i \subset S_i \times S_i$ is a set of ordered pairs of sub-tasks. $P_i$ represents precedence relations constraining the order of execution of the sub-tasks. More precisely, $(\tau_i^x , \tau_i^y) \in P_i$ indicates that $\tau_i^x$ must complete its execution before $\tau_i^y$ can start. The set of precedences is assumed to be cycle-free and so, $P_i$ can be represented with a \emph{Directed Acyclic Graph} (or \emph{DAG}).
