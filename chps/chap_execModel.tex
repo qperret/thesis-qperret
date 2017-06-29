@@ -5,31 +5,38 @@
 \label{chap_execModel}
 \minitoc
 
-
-
-%\textbf{A REPRENDRE}
-%\begin{verbatim}
-%TODO :
-% - End-to-end compos
-% - Conclu pour compo => c'est trop cher => EM
-% - Ajout ref ) approche time compositionnal
-%\end{verbatim}
-
-
-In this chapter, based on the detailed description of the \mppalong of Chapter~\ref{chap_systemModel}, we provide mathematical expressions enabling the computation of interference penalties when accessing shared resources such as the local SRAM banks, the Network on Chip or the external DDR-SDRAM. We assess the cost of an approach considering worst-case pathological competitors to safely bound the WCET of an application independently from its co-runners. Finally, we provide an execution model which mitigates this cost by restricting the behaviour of applications when sharing resources.
+In this chapter, based on the detailed description of the \mppalong of
+Chapter~\ref{chap_systemModel}, we provide mathematical expressions enabling
+the computation of interference penalties when accessing shared resources such
+as the local SRAM banks, the Network on Chip or the external DDR-SDRAM. We
+assess the cost of an approach considering worst-case pathological competitors
+to safely bound the WCET of an application independently from its co-runners.
+Finally, we provide an execution model which mitigates this cost by restricting
+the behaviour of applications when sharing resources.
 
 
 \section{Bounds on shared resources access time}
 \label{sec_execModel_boundsSharedRes}
 
-In this section, we provide models of the shared resources such as the SRAM, the NoC the DDR-SDRAM.
-The idea is firstly to identify the possibilities of bounding access time to those resources without making assumptions on the applications behaviour; and secondly, to estimate the amount of time that could be saved by reducing the access time margins by making some assumptions. The models presented here are derived from the composition rules that we originally presented in~\cite{Perret16}.
+In this section, we provide models of the shared resources such as the SRAM,
+the NoC the DDR-SDRAM.  The idea is firstly to identify the possibilities of
+bounding access time to those resources without making assumptions on the
+applications behaviour; and secondly, to estimate the amount of time that could
+be saved by reducing the access time margins by making some assumptions. The
+models presented here are derived from the composition rules that we originally
+presented in~\cite{Perret16}.
 
 
-\subsection{SRAM bank access time}
-\label{ssec_execModel_SRAMaccessModel}
-Accesses to SRAM banks in compute clusters are ruled by a complex arbitration policy.
-Fortunately, the access protocol for SRAM is simple and no refresh is required. Assuming no DMA reception and a service time of $T_{access}^{SRAM} = 10 \times t_{ck}$ (with $t_{ck}$ the duration of a clock cycle) for a single memory access of 8 bytes (9 cycles of latency and 1 cycle per double-word consecutively fetched), the maximum duration of a memory transaction of $S_{trans}$ bytes initiated by a PE, the RM, the DSU or the DMA in emission can be upper-bounded with equation~\ref{eq_execModel_SRAMtrans} when the number of competitors accessing the same bank is greater than 1. 
+\subsection{SRAM bank access time} \label{ssec_execModel_SRAMaccessModel}
+Accesses to SRAM banks in compute clusters are ruled by a complex arbitration
+policy.  Fortunately, the access protocol for SRAM is simple and no refresh is
+required. Assuming no DMA reception and a service time of $T_{access}^{SRAM} =
+10 \times t_{ck}$ (with $t_{ck}$ the duration of a clock cycle) for a single
+memory access of 8 bytes (9 cycles of latency and 1 cycle per double-word
+consecutively fetched), the maximum duration of a memory transaction of
+$S_{trans}$ bytes initiated by a PE, the RM, the DSU or the DMA in emission can
+be upper-bounded with equation~\ref{eq_execModel_SRAMtrans} when the number of
+competitors accessing the same bank is greater than 1. 
 
 
 \begin{equation}
@@ -38,38 +45,70 @@ Fortunately, the access protocol for SRAM is simple and no refresh is required. 
 \end{equation}
 with: $W_{bus}^{SRAM}$ the width of the memory bus (8 bytes on the \mppalong) and $N_{comp}^{SRAM}$ a \emph{virtual} number of competitors which depends on the initiator (a PE, the RM or the DMA).
 
-The $N_{comp}^{SRAM}$ value depends on the initiator. For example, a cache miss from a PE should be considered with $N_{comp}^{SRAM} = 64$. Indeed, the first Round-Robin arbiter at cache level will, in the worst case, forward to the next level of arbitration one out of two requests. The second arbiter will forward one out of sixteen requests and the last level one out of two. Eventually, in the worst case, one out of sixty-four requests issued to a bank will be initiated by the PE's cache under consideration. With a similar approach, $N_{comp}^{SRAM} = 6$ for the RM, the DSU and the DMA Tx.
+The $N_{comp}^{SRAM}$ value depends on the initiator. For example, a cache miss
+from a PE should be considered with $N_{comp}^{SRAM} = 64$. Indeed, the first
+Round-Robin arbiter at cache level will, in the worst case, forward to the next
+level of arbitration one out of two requests. The second arbiter will forward
+one out of sixteen requests and the last level one out of two. Eventually, in
+the worst case, one out of sixty-four requests issued to a bank will be
+initiated by the PE's cache under consideration. With a similar approach,
+$N_{comp}^{SRAM} = 6$ for the RM, the DSU and the DMA Tx.
 
 \begin{example}[Cost of accessing the local SRAM]
-    \label{ex_execModel_SRAMaccessTime}
-    Let us assume a PE reading 64 bytes from one local SRAM bank. The transaction's address is aligned on a multiple of 8 bytes. With $S_{trans} = 64$ and $N_{comp}^{SRAM} = 64$, this transaction can take in the absolute worst case $T_{trans}^{SRAM} = 5120$ clock cycles. If the PE is guaranteed to access the bank without competitors, the equation~\ref{eq_execModel_SRAMtrans} does not apply any more and the transaction's duration will last for $17$ cycles. Indeed $N_{comp}^{SRAM}=1$ and $T_{access}^{SRAM}$ is payed only for the first double-word access (the others will follow consecutively without repaying for $T_{access}^{SRAM}$ every time).
+    \label{ex_execModel_SRAMaccessTime} Let us assume a PE reading 64 bytes
+    from one local SRAM bank. The transaction's address is aligned on a
+    multiple of 8 bytes. With $S_{trans} = 64$ and $N_{comp}^{SRAM} = 64$, this
+    transaction can take in the absolute worst case $T_{trans}^{SRAM} = 5120$
+    clock cycles. If the PE is guaranteed to access the bank without
+    competitors, the equation~\ref{eq_execModel_SRAMtrans} does not apply any
+    more and the transaction's duration will last for $17$ cycles. Indeed
+    $N_{comp}^{SRAM}=1$ and $T_{access}^{SRAM}$ is payed only for the first
+    double-word access (the others will follow consecutively without repaying
+    for $T_{access}^{SRAM}$ every time).
 \end{example}
 
-The only way to \emph{safely} bound SRAM access time of PEs requires to consider the absolute worst bank-level competition if no assumption can be made on workloads ran by other PEs. As explained in Example~\ref{ex_execModel_SRAMaccessTime}, the cost of worst case competition can be prohibitive. 
-Moreover, in case of DMA receptions, $T_{trans}^{SRAM}$ should be extended with the maximum stalling time because of DMA Rx transactions. This stalling time depends on the NoC parameters and the memory areas assigned to Rx channels. Yet, any bound on the DMA Rx interference penalty can be summed to $T_{trans}^{SRAM}$ safely thanks to the property of full timing compositionality of the k1b cores.
+The only way to \emph{safely} bound SRAM access time of PEs requires to
+consider the absolute worst bank-level competition if no assumption can be made
+on workloads ran by other PEs. As explained in
+Example~\ref{ex_execModel_SRAMaccessTime}, the cost of worst case competition
+can be prohibitive.  Moreover, in case of DMA receptions, $T_{trans}^{SRAM}$
+should be extended with the maximum stalling time because of DMA Rx
+transactions. This stalling time depends on the NoC parameters and the memory
+areas assigned to Rx channels. Yet, any bound on the DMA Rx interference
+penalty can be summed to $T_{trans}^{SRAM}$ safely thanks to the property of
+full timing compositionality of the k1b cores.
 
-Anyway, the cost of bounding SRAM access time can be very large if the worst-case competition needs to be assumed. Reducing the cost of such an assumption will be one of the goal of our execution model.
+Anyway, the cost of bounding SRAM access time can be very large if the
+worst-case competition needs to be assumed. Reducing the cost of such an
+assumption will be one of the goal of our execution model.
 
 
-\subsection{WCTT on the NoC}
-\label{ssec_execModel_WCTTNoC}
-Bounding traversal time on the NoC depends both on the packetization procedure and the arbitration operated in switches. We analyze these two problems in the following sub-sections.
+\subsection{WCTT on the NoC} \label{ssec_execModel_WCTTNoC} Bounding traversal
+time on the NoC depends both on the packetization procedure and the arbitration
+operated in switches. We analyze these two problems in the following
+sub-sections.
 
 
 \subsubsection{Packetization}
-With $N_{bytes}^{flit}$ the number of bytes in one NoC flit, the number of payload flits needed to send a buffer of $S_{trans}$ bytes over the NoC is:
+With $N_{bytes}^{flit}$ the number of bytes in one NoC flit, the number of 
+payload flits needed to send a buffer of $S_{trans}$ bytes over the NoC is:
 \begin{displaymath}
     N_{flit} ( S_{trans} ) = 
     \left\lceil \dfrac{S_{trans}}{N_{bytes}^{flit}} \right\rceil
 \end{displaymath}
 
-So, assuming $N_{flit}^{pkt}$ to be the maximum number of flits in a NoC packet, the number of packets required to send $S_{trans}$ bytes is:
+So, assuming $N_{flit}^{pkt}$ to be the maximum number of flits in a NoC packet,
+the number of packets required to send $S_{trans}$ bytes is:
 \begin{displaymath}
     N_{pkt} ( S_{trans} ) = 
     \left\lceil \dfrac{ N_{flit}(S_{trans}) }{N_{flit}^{pkt}} \right\rceil
 \end{displaymath}
 
-Thus, with $N_{flit}^{head}$ the number of flits in a NoC packet header and $N_{flit}^{bbl}$ the number of empty flits lost in the bubble separating two consecutive packets, we can derive the total number of flits (including \emph{wasted} flits lost between packets, if any) needed to send $S_{trans}$ bytes as:
+Thus, with $N_{flit}^{head}$ the number of flits in a NoC packet header and
+$N_{flit}^{bbl}$ the number of empty flits lost in the bubble separating two
+consecutive packets, we can derive the total number of flits (including
+\emph{wasted} flits lost between packets, if any) needed to send $S_{trans}$
+bytes as:
 
 \begin{displaymath}
     N_{flit}^{total} ( S_{trans} ) =
@@ -81,7 +120,11 @@ Thus, with $N_{flit}^{head}$ the number of flits in a NoC packet header and $N_{
 
 \subsubsection{Time required to cross the NoC}
 \label{sssec_execModel_NoCbounds}
-The time required for all the flits of a transaction of $S_{trans}$ bytes to cross a NoC route of $N_{switch}$ switches without conflicts is given in Equation~\ref{eq_execModel_NocTransNoConflict} with $\Delta_L$ the latency of a NoC link and $\Delta_S$ the latency of a NoC switch.
+
+The time required for all the flits of a transaction of $S_{trans}$ bytes to
+cross a NoC route of $N_{switch}$ switches without conflicts is given in
+Equation~\ref{eq_execModel_NocTransNoConflict} with $\Delta_L$ the latency of a
+NoC link and $\Delta_S$ the latency of a NoC switch.
 
 \begin{equation}
     T_{trans}^{NoC} (S_{trans} , N_{switch}) = 
@@ -91,30 +134,53 @@ The time required for all the flits of a transaction of $S_{trans}$ bytes to cro
     \label{eq_execModel_NocTransNoConflict}
 \end{equation}
 
-If we do not make assumptions on the routes or the injection rates of packets, bounding the WCTT on the NoC \emph{with conflicts} can be impossible because of the possibility of deadlocks as explained in Section~\ref{sssec_stateOfTheArt_Noc_deadlocks}. What we emphasize here is the need for precise assumptions on the NoC access patterns to be able to use it under real-time constraints.
-As an example, we refer the reader to the contributions of Dupont de Dinechin \etal~\cite{Dinechin2014} and Giannopoulou \etal~\cite{Giannopoulou2015} for WCTT computation using Network Calculus where NoC accesses were assumed to be rate-limited at source and to follow pre-assigned routes.
+If we do not make assumptions on the routes or the injection rates of packets,
+bounding the WCTT on the NoC \emph{with conflicts} can be impossible because of
+the possibility of deadlocks as explained in
+Section~\ref{sssec_stateOfTheArt_Noc_deadlocks}. What we emphasize here is the
+need for precise assumptions on the NoC access patterns to be able to use it
+under real-time constraints.  As an example, we refer the reader to the
+contributions of Dupont de Dinechin \etal~\cite{Dinechin2014} and Giannopoulou
+\etal~\cite{Giannopoulou2015} for WCTT computation using Network Calculus where
+NoC accesses were assumed to be rate-limited at source and to follow
+pre-assigned routes.
 
-Overall, bounding WCTTs on the NoC cannot be done without assumption on its utilization by applications. Providing users with a framework enabling predictable NoC usage will be the second goal of our execution model.
+Overall, bounding WCTTs on the NoC cannot be done without assumption on its
+utilization by applications. Providing users with a framework enabling
+predictable NoC usage will be the second goal of our execution model.
 
 \subsection{DRAM access time}
 \label{ssec_execModel_DRAMaccessTime}
 \subsubsection{Model of the arbiter}
-The \mppalong's MPFE handles a complex dynamic priority assignment policy to avoid starvations. For simplification purpose, we will assume a specific MPFE configuration with starvation counters equal to 0 for all masters. In this case, all masters always have the same priority (the highest) and are thus arbitrated in a pure Round-Robin fashion.
 
-With $W_{burst}^{DDR}$ the width of a DDR burst, a transaction of $S_{trans}$ bytes will require the following number of column access requests to be fully executed:
+The \mppalong's MPFE handles a complex dynamic priority assignment policy to
+avoid starvations. For simplification purpose, we will assume a specific MPFE
+configuration with starvation counters equal to 0 for all masters. In this
+case, all masters always have the same priority (the highest) and are thus
+arbitrated in a pure Round-Robin fashion.
+
+With $W_{burst}^{DDR}$ the width of a DDR burst, a transaction of $S_{trans}$
+bytes will require the following number of column access requests to be fully
+executed:
 
 \begin{displaymath}
     N_{req}^{DDR}(S_{trans}) = \left\lceil \dfrac{S_{trans}}{W_{burst}^{DDR}} \right\rceil
 \end{displaymath}
 
-Yet, assuming pure Round-Robin for the MPFE, the number of arbitration rounds required for all the $N_{req}^{DDR}(S_{trans})$ to be forwarded to the reorder core is: 
+Yet, assuming pure Round-Robin for the MPFE, the number of arbitration rounds
+required for all the $N_{req}^{DDR}(S_{trans})$ to be forwarded to the reorder
+core is: 
 
 \begin{displaymath}
     N_{round}^{DDR}(S_{trans}, N_{comp}^{DDR}) = N_{req}^{DDR}(S_{trans}) \times N_{comp}^{DDR}
 \end{displaymath}
 
 
-A request entering the reorder core is guaranteed by the hardware to be served after at most $2 N_{req}^{pool} -1$ other requests. So, with $T_{req}^{DDR}$ the worst case service time for a DDR request, the total amount of time (without considering refreshes yet) needed to complete a full transaction can be bounded by Equation~\ref{eq_execModel_DRAMtransTime}.
+A request entering the reorder core is guaranteed by the hardware to be served
+after at most $2 N_{req}^{pool} -1$ other requests. So, with $T_{req}^{DDR}$
+the worst case service time for a DDR request, the total amount of time
+(without considering refreshes yet) needed to complete a full transaction can
+be bounded by Equation~\ref{eq_execModel_DRAMtransTime}.
 
 
 \begin{equation}
@@ -125,7 +191,16 @@ A request entering the reorder core is guaranteed by the hardware to be served a
 
 
 \subsubsection{Evaluation of $T_{req}^{DDR}$}
-As explained in Section~\ref{sssec_stateOfTheArt_basicsDRAM}, a complex access protocol is used to deal with DDR-SDRAM systems. The service time of a DDR-SDRAM request highly depends on the current state of the chip, and thus depends on the history of accesses that changed this state. The worst case access time of a DRAM request occurs in case of a row-miss read request following a write request. In this case, the controller must: 1) wait for the write completion ($t_{WR}$); 2) issue a \emph{PRE} command ($t_{RP}$) on the currently opened row; 3) activate the correct row ($t_{RCD}$) and 4) issue the \emph{RD} command ($t_{CAS} + t_{burst}$). The worst case service time for a request is given in Equation~\ref{eq_execModel_DRAMworstCaseReq}.
+As explained in Section~\ref{sssec_stateOfTheArt_basicsDRAM}, a complex access
+protocol is used to deal with DDR-SDRAM systems. The service time of a
+DDR-SDRAM request highly depends on the current state of the chip, and thus
+depends on the history of accesses that changed this state. The worst case
+access time of a DRAM request occurs in case of a row-miss read request
+following a write request. In this case, the controller must: 1) wait for the
+write completion ($t_{WR}$); 2) issue a \emph{PRE} command ($t_{RP}$) on the
+currently opened row; 3) activate the correct row ($t_{RCD}$) and 4) issue the
+\emph{RD} command ($t_{CAS} + t_{burst}$). The worst case service time for a
+request is given in Equation~\ref{eq_execModel_DRAMworstCaseReq}.
 
 \begin{equation}
     T_{req}^{DDR} = 
@@ -140,10 +215,24 @@ As explained in Section~\ref{sssec_stateOfTheArt_basicsDRAM}, a complex access p
 
 \begin{example}[Cost of accessing the DDR-SDRAM]
     \label{ex_execModel_costAccessDDR}
-    Let us assume 192 bytes of data to be written in a bank of the DDR-SDRAM. With the values of Table~\ref{table_execModel_MPPAhwParams}, and assuming 4 DMAs competing for accessing the same bank, $N_{round}^{DDR} = 12$. With the DDR timing values of Table~\ref{table_stateOfTheArt_exampleTimingParamsMicronDRAM}, $T_{req}^{DDR} = 67.5ns$. Thus, $T_{trans}^{DDR} \approx 1.8 \mu s$. If only one DMA was accessing the bank without any competitor, the row activation would need to by payed only once, thus leading to $T_{trans}^{DDR} = 75.5ns$.
+    Let us assume 192 bytes of data to be written in a bank of the DDR-SDRAM.
+    With the values of Table~\ref{table_execModel_MPPAhwParams}, and assuming 4
+    DMAs competing for accessing the same bank, $N_{round}^{DDR} = 12$. With
+    the DDR timing values of
+    Table~\ref{table_stateOfTheArt_exampleTimingParamsMicronDRAM},
+    $T_{req}^{DDR} = 67.5ns$. Thus, $T_{trans}^{DDR} \approx 1.8 \mu s$. If
+    only one DMA was accessing the bank without any competitor, the row
+    activation would need to by payed only once, thus leading to
+    $T_{trans}^{DDR} = 75.5ns$.
 \end{example}
 
-As explained in Example~\ref{ex_execModel_costAccessDDR}, accessing the DDR-SDRAM in the worst-case competition scenario can lead to very inefficient use of the memory. Indeed, competitors accessing different rows of the same bank will force the controller to repeatedly precharge and activate rows, thus reducing the time used to effectively transfer data. Reducing the overhead involved by such competition while keeping bounds on memory transactions sound will be the third goal of our execution model.
+As explained in Example~\ref{ex_execModel_costAccessDDR}, accessing the
+DDR-SDRAM in the worst-case competition scenario can lead to very inefficient
+use of the memory. Indeed, competitors accessing different rows of the same
+bank will force the controller to repeatedly precharge and activate rows, thus
+reducing the time used to effectively transfer data. Reducing the overhead
+involved by such competition while keeping bounds on memory transactions sound
+will be the third goal of our execution model.
 
 
 \begin{table}
@@ -182,40 +271,58 @@ As explained in Example~\ref{ex_execModel_costAccessDDR}, accessing the DDR-SDRA
 
 
 
-%\subsection{End-to-end composition of memory accesses}
-
-%When achieving remote memory operations targeting the DDR-SDRAM from a compute cluster, it is not only at the external memory level that interferences can occur but also at the NoC and local SRAM levels. Consequently, the duration of such a remote memory transaction depends on all three resources. 
-%Yet, safely bounding the worst case duration of such a remote memory operation cannot be done without any kind of assumption on the NoC access patterns because of the possibility of deadlocks. In previous contributions, the deadlock-avoidance was enforced using Network Calculus~\cite{Dinechin2014,Giannopoulou2015}. In this section, we investigate the case of TDM schedule on the NoC.
 
 
 \subsection{Summary}
 
-Hosting several applications on a single target while making them independent from each other requires for each of them to assume worst-case competitors when accessing shared resources. In the previous sections, we have seen that such an assumption can lead to very high costs to bound the durations of accesses to the local SRAM, the NoC or the DDR-SDRAM. In order to keep co-hosting costs reasonable, we propose to artificially isolate applications by enforcing specific behaviours on shared resources. By mastering concurrent applications at the resource level, we aim at avoiding the corner cases for which accessing resources is too expensive, thus enabling better usage of the hardware overall.
+Hosting several applications on a single target while making them independent
+from each other requires for each of them to assume worst-case competitors when
+accessing shared resources. In the previous sections, we have seen that such an
+assumption can lead to very high costs to bound the durations of accesses to
+the local SRAM, the NoC or the DDR-SDRAM. In order to keep co-hosting costs
+reasonable, we propose to artificially isolate applications by enforcing
+specific behaviours on shared resources. By mastering concurrent applications
+at the resource level, we aim at avoiding the corner cases for which accessing
+resources is too expensive, thus enabling better usage of the hardware overall.
 
 
 \section{Mitigation of the interferences}
 
-In order to mitigate the interferences when accessing shared resources, we propose an execution model which constrains the behaviour of applications in exchange of improving their predictability and enabling better access to shared resources. The idea is to provide temporally isolated environments, denoted as \emph{partitions}, to applications. 
+In order to mitigate the interferences when accessing shared resources, we
+propose an execution model which constrains the behaviour of applications in
+exchange of improving their predictability and enabling better access to shared
+resources. The idea is to provide temporally isolated environments, denoted as
+\emph{partitions}, to applications. 
 
 \begin{definition}[Partition]
-A partition is an execution environment in which the temporal behaviour of an application does not depend on the behaviour of applications not belonging to the same partition. 
+A partition is an execution environment in which the temporal behaviour of an
+    application does not depend on the behaviour of applications not belonging
+    to the same partition. 
 \end{definition}
 
-Our execution model imposes specific access patterns to sensible resources that are likely to be shared by several partitions in order to enforce interference-free executions of the isolated applications. By doing so, we aim at executing partitions in a \emph{time-composable} manner.
+Our execution model imposes specific access patterns to sensible resources that
+are likely to be shared by several partitions in order to enforce
+interference-free executions of the isolated applications. By doing so, we aim
+at executing partitions in a \emph{time-composable} manner.
 
 
 \subsection{Definition of the execution model}
-We propose four rules constraining accesses to the three main levels where interferences can occur on the \mppalong, namely the local SRAM, the NoC and the DDR-SDRAM.
+We propose four rules constraining accesses to the three main levels where
+interferences can occur on the \mppalong, namely the local SRAM, the NoC and
+the DDR-SDRAM.
 
 \newtheorem{emrule}{Rule}
 \begin{emrule}
-    Any PE (respectively any local SRAM bank) inside any compute cluster can be used by at most one partition.
-    \label{emrule_1}
+    Any PE (respectively any local SRAM bank) inside any compute cluster can be
+    used by at most one partition.  \label{emrule_1}
 \end{emrule}
 
 \begin{emrule}
-    Communications over the NoC must respect a pre-computed Time-Division Multiplexing schedule and avoid conflicts by either taking non-overlapping routes or accessing the shared route at different time. The NoC schedule must ensure that when a communication uses a route, it is completely reserved at the time of utilization.
-    \label{emrule_2}
+    Communications over the NoC must respect a pre-computed Time-Division
+    Multiplexing schedule and avoid conflicts by either taking non-overlapping
+    routes or accessing the shared route at different time. The NoC schedule
+    must ensure that when a communication uses a route, it is completely
+    reserved at the time of utilization.  \label{emrule_2}
 \end{emrule}
 
 \begin{emrule}
@@ -224,17 +331,42 @@ We propose four rules constraining accesses to the three main levels where inter
 \end{emrule}
 
 \begin{emrule}
-    Any bank of the external DDR-SDRAM can be shared by two or more partitions if and only if they never access it simultaneously.
-    \label{emrule_4}
+    Any bank of the external DDR-SDRAM can be shared by two or more partitions
+    if and only if they never access it simultaneously.  \label{emrule_4}
 \end{emrule}
 
 \subsection{Motivations}
 \subsubsection{Rule~\ref{emrule_1}}
-With Rule~\ref{emrule_1}, we ensure that some code running on a PE will not suffer from local SRAM interferences caused by PEs of other partitions. By doing so, the $N_{comp}^{SRAM}$ parameter of Equation~\ref{eq_execModel_SRAMtrans} can be adjusted to account only for the PEs generating \emph{friend} traffic, that is, PEs running code of the same partition. This does not only help to lower the local SRAM interference penalties when computing WCETs, but this also brings complete isolation between partitions.
-Yet, local SRAM accesses from the RM and the DMA can still be conflicting with the PEs. DMA accesses will occur only to send or receive data that belongs to a partition. Conflicts with PEs of the same partition do not break the property of temporal isolation. Similarly, as we will detail in Chapter~\ref{chap_implemExecMod}, the RM will be executing a custom hypervisor which may access partition-reserved memory addresses only to achieve partition-related work.
+With Rule~\ref{emrule_1}, we ensure that some code running on a PE will not
+suffer from local SRAM interferences caused by PEs of other partitions. By
+doing so, the $N_{comp}^{SRAM}$ parameter of
+Equation~\ref{eq_execModel_SRAMtrans} can be adjusted to account only for the
+PEs generating \emph{friend} traffic, that is, PEs running code of the same
+partition. This does not only help to lower the local SRAM interference
+penalties when computing WCETs, but this also brings complete isolation between
+partitions.  Yet, local SRAM accesses from the RM and the DMA can still be
+conflicting with the PEs. DMA accesses will occur only to send or receive data
+that belongs to a partition. Conflicts with PEs of the same partition do not
+break the property of temporal isolation. Similarly, as we will detail in
+Chapter~\ref{chap_implemExecMod}, the RM will be executing a custom hypervisor
+which may access partition-reserved memory addresses only to achieve
+partition-related work.
 
 \begin{example}[Application of Rule~\ref{emrule_1}]
-    An example of application of the Rule~\ref{emrule_1} is shown in Figure~\ref{fig_execModel_exampleRule1}. A simplified compute cluster architecture is presented in Figure~\ref{fig_execModel_exampleRule1_before} with 4 PEs, 4 banks of memory, the RM and the DMA. Figure~\ref{fig_execModel_exampleRule1_after} shows the same cluster when the Rule~\ref{emrule_1} is applied to split the compute cluster into two partitions. PEs 0 and 1 are not able to access the banks 2 and 3 allocated to the partition 2. Symmetrically, PEs 2 and 3 cannot access banks 0 and 1 reserved for the partition 1. In this case, any task running on the PE 0 (for example) may suffer only from ``friend'' memory interferences when in competition with the PE 1, the RM or the DMA. In this example, the partitioning has arbitrarily been chosen as symmetric (2 cores - 2 banks per partition) but any configuration could have been possible (1 core - 3 banks, ...) depending on the needs of applications.
+    An example of application of the Rule~\ref{emrule_1} is shown in
+    Figure~\ref{fig_execModel_exampleRule1}. A simplified compute cluster
+    architecture is presented in Figure~\ref{fig_execModel_exampleRule1_before}
+    with 4 PEs, 4 banks of memory, the RM and the DMA.
+    Figure~\ref{fig_execModel_exampleRule1_after} shows the same cluster when
+    the Rule~\ref{emrule_1} is applied to split the compute cluster into two
+    partitions. PEs 0 and 1 are not able to access the banks 2 and 3 allocated
+    to the partition 2. Symmetrically, PEs 2 and 3 cannot access banks 0 and 1
+    reserved for the partition 1. In this case, any task running on the PE 0
+    (for example) may suffer only from ``friend'' memory interferences when in
+    competition with the PE 1, the RM or the DMA. In this example, the
+    partitioning has arbitrarily been chosen as symmetric (2 cores - 2 banks
+    per partition) but any configuration could have been possible (1 core - 3
+    banks, ...) depending on the needs of applications.
 \end{example}
 
 \begin{figure}
@@ -256,18 +388,46 @@ Yet, local SRAM accesses from the RM and the DMA can still be conflicting with t
 \end{figure}
 
 \subsubsection{Rule~\ref{emrule_2}}
-Enforcing a Time-Driven schedule of the NoC enables an easy and efficient estimation of WCTTs of packets. Indeed, assuming that no conflict can occur on the NoC, the traversal time of packets can be estimated accurately using simple models such as Equation~\ref{eq_execModel_NocTransNoConflict}. However, these gains are obtained at the costs of inflexible communication scenarios and additional efforts for pre-computing schedules that actually exhibit the no-overlapping property.
+Enforcing a Time-Driven schedule of the NoC enables an easy and efficient
+estimation of WCTTs of packets. Indeed, assuming that no conflict can occur on
+the NoC, the traversal time of packets can be estimated accurately using simple
+models such as Equation~\ref{eq_execModel_NocTransNoConflict}. However, these
+gains are obtained at the costs of inflexible communication scenarios and
+additional efforts for pre-computing schedules that actually exhibit the
+no-overlapping property.
 
-The approaches considering asynchronous and rate-limited sources such as \cite{Dinechin2014} and \cite{Giannopoulou2015} are often argued to provide more flexibility and good guaranteed bandwidths. However, our choice of considering a TDM schedule and synchronous sources over Network Calculus and asynchronous sources is motivated by the two following reasons:
+The approaches considering asynchronous and rate-limited sources such as
+\cite{Dinechin2014} and \cite{Giannopoulou2015} are often argued to provide
+more flexibility and good guaranteed bandwidths. However, our choice of
+considering a TDM schedule and synchronous sources over Network Calculus and
+asynchronous sources is motivated by the two following reasons:
 
 \begin{enumerate}
-    \item We aim at providing fully temporally isolated execution environments to partitions. Approaches with asynchronous sources often rely on the timing \emph{compositionality} of the system to account for the worst case communication conflict. By doing so, the actual time required for a packet to cross the network, even if safely bounded, does depend on the behaviour of the co-running applications. By using a TDM schedule, we aim at providing a property of timing \emph{composability} which is better suited to ensure strict isolation.
-    \item We aim at being able to efficiently execute multi-cluster applications in multi-cluster partitions to fully benefit from the massively parallel computational power of the target. To do so, our ability to ensure short guaranteed \emph{latencies} for data exchange between clusters will be of major importance. TDM schedules have been shown in~\cite{Puffitsch2015} to provide better results for this particular criteria while Network Calculus on asynchronous sources seems preferable when \emph{bandwidth} guarantees are needed.
+    \item We aim at providing fully temporally isolated execution environments
+        to partitions. Approaches with asynchronous sources often rely on the
+        timing \emph{compositionality} of the system to account for the worst
+        case communication conflict. By doing so, the actual time required for
+        a packet to cross the network, even if safely bounded, does depend on
+        the behaviour of the co-running applications. By using a TDM schedule,
+        we aim at providing a property of timing \emph{composability} which is
+        better suited to ensure strict isolation.
+    \item We aim at being able to efficiently execute multi-cluster
+        applications in multi-cluster partitions to fully benefit from the
+        massively parallel computational power of the target. To do so, our
+        ability to ensure short guaranteed \emph{latencies} for data exchange
+        between clusters will be of major importance. TDM schedules have been
+        shown in~\cite{Puffitsch2015} to provide better results for this
+        particular criteria while Network Calculus on asynchronous sources
+        seems preferable when \emph{bandwidth} guarantees are needed.
 \end{enumerate}
 
 \begin{example}[Application of Rule~\ref{emrule_2}]
-    A simplified NoC topology with 6 nodes is depicted in Figure~\ref{fig_execModel_exampleRule2_noc} where two communications compete to access the \circled{2} $\to$ \circled{5} NoC resource. Figure~\ref{fig_execModel_exampleRule2_diagram} shows an example of correct TDM schedule of the two communications where temporal partitioning ensures the conflicts avoidance.
-\end{example}
+    A simplified NoC topology with 6 nodes is depicted in
+Figure~\ref{fig_execModel_exampleRule2_noc} where two communications compete to
+access the \circled{2} $\to$ \circled{5} NoC resource.
+Figure~\ref{fig_execModel_exampleRule2_diagram} shows an example of correct TDM
+schedule of the two communications where temporal partitioning ensures the
+conflicts avoidance.  \end{example}
 
 \begin{figure}
     \centering
@@ -290,15 +450,46 @@ The approaches considering asynchronous and rate-limited sources such as \cite{D
 
 
 \subsubsection{Rule~\ref{emrule_3}}
-Although meeting this rule is not absolutely necessary to ensure full temporal isolation, it has several interesting qualities. Firstly, knowing a priori the buffers that will be sent during the strictly periodic slot imposed by Rule~\ref{emrule_2} enables to \emph{verify} off-line the coherency of a partition. The size of the buffer to be sent can be compared with the width of the TDM slots using Equation~\ref{eq_execModel_NocTransNoConflict} to check whether the time slot is sufficiently large for all the data to be sent. Secondly, as we will show in Chapter~\ref{chap_implemExecMod}, Rule~\ref{emrule_3} greatly simplifies the implementation of the hypervisor in charge of enforcing the respect of the execution model. In particular, it helps in narrowing the WCET of the hypervisor which we will demonstrate to be of major importance for performance issues. And finally, knowing where and when DMA Rx transactions will occur enables accurate estimations of the stalling time that PEs will suffer when accessing their local SRAM banks, thus solving the problem identified in Section~\ref{ssec_execModel_SRAMaccessModel}.
+Although meeting this rule is not absolutely necessary to ensure full temporal
+isolation, it has several interesting qualities. Firstly, knowing a priori the
+buffers that will be sent during the strictly periodic slot imposed by
+Rule~\ref{emrule_2} enables to \emph{verify} off-line the coherency of a
+partition. The size of the buffer to be sent can be compared with the width of
+the TDM slots using Equation~\ref{eq_execModel_NocTransNoConflict} to check
+whether the time slot is sufficiently large for all the data to be sent.
+Secondly, as we will show in Chapter~\ref{chap_implemExecMod},
+Rule~\ref{emrule_3} greatly simplifies the implementation of the hypervisor in
+charge of enforcing the respect of the execution model. In particular, it helps
+in narrowing the WCET of the hypervisor which we will demonstrate to be of
+major importance for performance issues. And finally, knowing where and when
+DMA Rx transactions will occur enables accurate estimations of the stalling
+time that PEs will suffer when accessing their local SRAM banks, thus solving
+the problem identified in Section~\ref{ssec_execModel_SRAMaccessModel}.
 
 
 
 \subsubsection{Rule~\ref{emrule_4}}
-With Rule~\ref{emrule_4} we eliminate the possibility of DDR-SDRAM masters conflicting to access different rows of the same bank. Thanks to this, the estimation of $T_{req}^{DDR}$ can be adapted to take into account that a master issuing a series of requests targeting contiguous memory areas in the same row will have to pay for the activation of this row only for the \emph{first} request and not for \emph{all} of them. This provides both performance isolation by exploiting the parallelism of banked DDR-SDRAM but also improves the overall memory throughput by helping the memory controller issue inexpensive requests which will not change rows inside banks due to competitors accessing other rows .
+With Rule~\ref{emrule_4} we eliminate the possibility of DDR-SDRAM masters
+conflicting to access different rows of the same bank. Thanks to this, the
+estimation of $T_{req}^{DDR}$ can be adapted to take into account that a master
+issuing a series of requests targeting contiguous memory areas in the same row
+will have to pay for the activation of this row only for the \emph{first}
+request and not for \emph{all} of them. This provides both performance
+isolation by exploiting the parallelism of banked DDR-SDRAM but also improves
+the overall memory throughput by helping the memory controller issue
+inexpensive requests which will not change rows inside banks due to competitors
+accessing other rows .
 
 \begin{example}[Application of Rule~\ref{emrule_4}]
-    Figure~\ref{fig_execModel_exampleRule4_ddr} shows an example of 3 partitions $P_A$, $P_B$ and $P_C$ accessing the external DDR-SDRAM composed of 6 banks $b_0 , \ldots , b_5$. In particular, one may note that the bank $b_2$ is shared by $P_A$ and $P_B$ while $b_3$ is shared by $P_B$ and $P_C$. Figure~\ref{fig_execModel_exampleRule4_diagram} shows an example of correct schedule of memory transaction where the accesses of $P_A$ and $P_C$ are allowed to overlap in time since they do not share any bank. On the other hand, the transaction from $P_B$ are never overlapping with $P_A$ and $P_C$ to ensure competition-free accesses to banks $b_2$ and $b_3$.
+    Figure~\ref{fig_execModel_exampleRule4_ddr} shows an example of 3
+    partitions $P_A$, $P_B$ and $P_C$ accessing the external DDR-SDRAM composed
+    of 6 banks $b_0 , \ldots , b_5$. In particular, one may note that the bank
+    $b_2$ is shared by $P_A$ and $P_B$ while $b_3$ is shared by $P_B$ and
+    $P_C$. Figure~\ref{fig_execModel_exampleRule4_diagram} shows an example of
+    correct schedule of memory transaction where the accesses of $P_A$ and
+    $P_C$ are allowed to overlap in time since they do not share any bank. On
+    the other hand, the transaction from $P_B$ are never overlapping with $P_A$
+    and $P_C$ to ensure competition-free accesses to banks $b_2$ and $b_3$.
 \end{example}
 
 \begin{figure}
@@ -321,7 +512,26 @@ With Rule~\ref{emrule_4} we eliminate the possibility of DDR-SDRAM masters confl
 \end{figure}
 
 \section{Summary}
-In this chapter, we analyzed the architecture of the \mppalong in details with a particular focus on arbitration mechanisms for the access to shared resources. Based on this analysis, we proposed, when it was possible, mathematical expressions to compute worst-case interference penalties for the access to the local SRAM banks, the NoC and the DDR-SDRAM. We showed that, in most cases, considering the pathological worst-case pattern of accesses to the resources leads to prohibitive penalties while, in the remaining cases, computing such bounds was simply not possible without eliminating the worst-case thanks to assumptions on the system model. Based on these conclusions, we proposed four rules composing an execution model that mitigates or even eliminates undesired interferences between applications. This execution model relies on pure spatial partitioning inside compute clusters and on hybrid partitioning for the NoC and the DDR-SDRAM to provide temporally isolated \emph{partitions} in which applications can run. Overall, our approach relies on off-line reservation of resources by partitions. We formalize this using a notion of \emph{resource budget} that is allocated to a partition. Budgets are key elements for the framework proposed in this thesis. This first contribution has been published in~\cite{Perret16}. The next chapter provides a formal definition of the notions of partitions and budgets and exposes the workflow relying on it.
+In this chapter, we analyzed the architecture of the \mppalong in details with
+a particular focus on arbitration mechanisms for the access to shared
+resources. Based on this analysis, we proposed, when it was possible,
+mathematical expressions to compute worst-case interference penalties for the
+access to the local SRAM banks, the NoC and the DDR-SDRAM. We showed that, in
+most cases, considering the pathological worst-case pattern of accesses to the
+resources leads to prohibitive penalties while, in the remaining cases,
+computing such bounds was simply not possible without eliminating the
+worst-case thanks to assumptions on the system model. Based on these
+conclusions, we proposed four rules composing an execution model that mitigates
+or even eliminates undesired interferences between applications. This execution
+model relies on pure spatial partitioning inside compute clusters and on hybrid
+partitioning for the NoC and the DDR-SDRAM to provide temporally isolated
+\emph{partitions} in which applications can run. Overall, our approach relies
+on off-line reservation of resources by partitions. We formalize this using a
+notion of \emph{resource budget} that is allocated to a partition. Budgets are
+key elements for the framework proposed in this thesis. This first contribution
+has been published in~\cite{Perret16}. The next chapter provides a formal
+definition of the notions of partitions and budgets and exposes the workflow
+relying on it.
 
 
 

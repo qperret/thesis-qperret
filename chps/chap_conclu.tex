@@ -7,81 +7,314 @@
 \minitoc
 
 \section{Summary of contributions}
-This thesis addressed the problem of using many-core processors in a predictable manner. We aimed at leveraging their parallel computational power to support the execution of multiple isolated partitions and to process massive and constrained workloads. Overall, the avionics and industrial context of this work involved specific constraints. For cost and performance reasons, we focused on the management of COTS processors only. In particular, we applied our approach on the \mppalong. Secondly, we considered that WCETs of programs must be computed using static analysis techniques, thus implying the need for either time-compositional or time-composable systems. In addition, we assumed all configuration, mapping and scheduling activities to be achieved off-line in order to match industry practices. And finally, industrial context required any mapping or scheduling technique to scale in a reasonable amount of time to large applications.
+This thesis addressed the problem of using many-core processors in a
+predictable manner. We aimed at leveraging their parallel computational power
+to support the execution of multiple isolated partitions and to process massive
+and constrained workloads. Overall, the avionics and industrial context of this
+work involved specific constraints. For cost and performance reasons, we
+focused on the management of COTS processors only. In particular, we applied
+our approach on the \mppalong. Secondly, we considered that WCETs of programs
+must be computed using static analysis techniques, thus implying the need for
+either time-compositional or time-composable systems. In addition, we assumed
+all configuration, mapping and scheduling activities to be achieved off-line in
+order to match industry practices. And finally, industrial context required any
+mapping or scheduling technique to scale in a reasonable amount of time to
+large applications.
 
-In the remainder of this section, we provide an overview of the main contributions of the thesis and a discussion regarding the limits of the approach.
+In the remainder of this section, we provide an overview of the main
+contributions of the thesis and a discussion regarding the limits of the
+approach.
 
-\subsection{Main contributions}
-\subsubsection{Integration framework}
-In order to run concurrent applications in isolation on the \mppalong, we proposed a complete integration framework. Overall, the whole framework relies on the property of temporal isolation provided by an execution model. The framework takes as inputs a set of partitions that are expected to be executed in a time-composable manner. Each partition contains an application and a resource budget allocated to it. Each budget is validated by verifying that the amount of resource it contains is sufficient to properly execute the application. Then the budgets of all partitions are allocated to concrete hardware resources of the processor. Eventually, temporal isolation between partitions is enforced at run-time by a hypervisor that implements the rules of our execution model. The purpose of this framework is to allow applications designer to design, develop, verify and test their applications without any knowledge of co-running applications. In particular, it enables applications to be certified independently and thus fulfils the industrial need for incremental certification. 
+\subsection{Main contributions} \subsubsection{Integration framework} In order
+to run concurrent applications in isolation on the \mppalong, we proposed a
+complete integration framework. Overall, the whole framework relies on the
+property of temporal isolation provided by an execution model. The framework
+takes as inputs a set of partitions that are expected to be executed in a
+time-composable manner. Each partition contains an application and a resource
+budget allocated to it. Each budget is validated by verifying that the amount
+of resource it contains is sufficient to properly execute the application. Then
+the budgets of all partitions are allocated to concrete hardware resources of
+the processor. Eventually, temporal isolation between partitions is enforced at
+run-time by a hypervisor that implements the rules of our execution model. The
+purpose of this framework is to allow applications designer to design, develop,
+verify and test their applications without any knowledge of co-running
+applications. In particular, it enables applications to be certified
+independently and thus fulfils the industrial need for incremental
+certification. 
 
-\subsubsection{Execution model}
-To enable several applications to run concurrently on the \mppalong without interfering with each other, we propose to use an execution model. An execution model is a set of rules constraining the acceptable behaviours of applications in order to avoid unpredictable accesses to shared resources. Our execution model is based on an analysis of the \mppalong and focuses on the three main sources of interferences on this platform, namely the local memories of compute clusters, the NoC and the external DDR-SDRAM. Inside compute cluster, we propose to use pure spatial partitioning by allocating no more than one partition to each local memory bank and each core. At the NoC level, we avoid competition using a global TDM schedule coupled with an appropriate route allocation of communication channels. At the DDR-SDRAM level, we also enforce a TDM schedule at the bank level but not between banks in order to eliminate row switching costs for co-running partitions. Finally, we require applications designers to define off-line the memory areas that will be sent at run-time to enable off-line verification of the NoC budget. Overall, this execution model drastically mitigates inter-partition interferences and provides a time-composable execution environment. The design of this execution model is the core of our first publication~\cite{Perret16}.
+\subsubsection{Execution model} To enable several applications to run
+concurrently on the \mppalong without interfering with each other, we propose
+to use an execution model. An execution model is a set of rules constraining
+the acceptable behaviours of applications in order to avoid unpredictable
+accesses to shared resources. Our execution model is based on an analysis of
+the \mppalong and focuses on the three main sources of interferences on this
+platform, namely the local memories of compute clusters, the NoC and the
+external DDR-SDRAM. Inside compute cluster, we propose to use pure spatial
+partitioning by allocating no more than one partition to each local memory bank
+and each core. At the NoC level, we avoid competition using a global TDM
+schedule coupled with an appropriate route allocation of communication
+channels. At the DDR-SDRAM level, we also enforce a TDM schedule at the bank
+level but not between banks in order to eliminate row switching costs for
+co-running partitions. Finally, we require applications designers to define
+off-line the memory areas that will be sent at run-time to enable off-line
+verification of the NoC budget. Overall, this execution model drastically
+mitigates inter-partition interferences and provides a time-composable
+execution environment. The design of this execution model is the core of our
+first publication~\cite{Perret16}.
 
-\subsubsection{Implementation of the execution model}
-In order to enforce the rules of the execution model at run-time, we developed a hypervisor which runs underneath applications and limits their accesses to shared resources. More precisely, the hypervisor manages boot of all cores and configures the hardware globally. The spatial partitioning inside compute clusters is enforced using frozen MMU configurations and fixed exception handlers. An instance of the hypervisor is executed by the RM of each compute cluster and manages the DMA to apply the NoC schedule. Since accesses to DDR-SDRAM require DMA transaction through the NoC, computing an appropriate NoC schedule off-line is enough to meet the constraint without further on-line support. Finally, we validated the correctness of our application using several experimental benchmarks based on the \rosace case study. As expected, benchmarks exhibited a clear temporal isolation between co-running partitions despite sharing resources such as the NoC or the DDR-SDRAM. This work on the hypervisor and the experimental benchmarks was published in~\cite{Perret16_RTAS}.
+\subsubsection{Implementation of the execution model} In order to enforce the
+rules of the execution model at run-time, we developed a hypervisor which runs
+underneath applications and limits their accesses to shared resources. More
+precisely, the hypervisor manages boot of all cores and configures the hardware
+globally. The spatial partitioning inside compute clusters is enforced using
+frozen MMU configurations and fixed exception handlers. An instance of the
+hypervisor is executed by the RM of each compute cluster and manages the DMA to
+apply the NoC schedule. Since accesses to DDR-SDRAM require DMA transaction
+through the NoC, computing an appropriate NoC schedule off-line is enough to
+meet the constraint without further on-line support. Finally, we validated the
+correctness of our application using several experimental benchmarks based on
+the \rosace case study. As expected, benchmarks exhibited a clear temporal
+isolation between co-running partitions despite sharing resources such as the
+NoC or the DDR-SDRAM. This work on the hypervisor and the experimental
+benchmarks was published in~\cite{Perret16_RTAS}.
 
-\subsubsection{Automated budget validation}
-Since our work is required to apply on industrial-sized applications, the handmade validation of resource budgets can quickly become prohibitive. To tackle this issue, we propose to automatically validate budgets by computing a schedule of the applications using constraint programming. We leverage the features of modern CP solvers such as the notion of Conditional-Time Intervals introduced in \CPOpti in order to deal with large problem instances. In particular, we provide an extensive parametric evaluation of our CSP formulation using an industrial case study from Airbus. We show that the approach not only provides correct schedules of the applications in a few minutes, but also that it can handle more demanding workloads and a variety of different budgets. This contribution has been originally published in~\cite{Perret16_RTNS}.
+\subsubsection{Automated budget validation} Since our work is required to apply
+on industrial-sized applications, the handmade validation of resource budgets
+can quickly become prohibitive. To tackle this issue, we propose to
+automatically validate budgets by computing a schedule of the applications
+using constraint programming. We leverage the features of modern CP solvers
+such as the notion of Conditional-Time Intervals introduced in \CPOpti in order
+to deal with large problem instances. In particular, we provide an extensive
+parametric evaluation of our CSP formulation using an industrial case study
+from Airbus. We show that the approach not only provides correct schedules of
+the applications in a few minutes, but also that it can handle more demanding
+workloads and a variety of different budgets. This contribution has been
+originally published in~\cite{Perret16_RTNS}.
 
-\subsection{Limitations of the approach}
-The approach proposed in this thesis correctly solves most of the problems related to the predictable execution of parallel applications on many-core processors. Moreover, it meets all the constraints involved by the industrial and avionics context. Yet, it obviously has some limitations that we detail below.
+\subsection{Limitations of the approach} The approach proposed in this thesis
+correctly solves most of the problems related to the predictable execution of
+parallel applications on many-core processors. Moreover, it meets all the
+constraints involved by the industrial and avionics context. Yet, it obviously
+has some limitations that we detail below.
 
-\subsubsection{Limits of the execution model}
-The purpose of an execution model is to constrain the behaviour of applications to avoid undesired situations. The rules imposed to applications designers have an impact on their designs and are usually focused on specific application topologies. In our case, the choices behind our execution model are tailored to avionics applications. Consequently, any application that is out of this scope may face difficulties to be integrated within our framework. In particular, knowing prior to execution exactly which data should be sent at each TDM NoC slot is not a problem in avionics since off-line computation is a standard industry practice. However, other applications may require more flexibility regarding communication schedules. The passive communication paradigm of our approach can be a blocking point for applications needing on-line communication support.
+\subsubsection{Limits of the execution model} The purpose of an execution model
+is to constrain the behaviour of applications to avoid undesired situations.
+The rules imposed to applications designers have an impact on their designs and
+are usually focused on specific application topologies. In our case, the
+choices behind our execution model are tailored to avionics applications.
+Consequently, any application that is out of this scope may face difficulties
+to be integrated within our framework. In particular, knowing prior to
+execution exactly which data should be sent at each TDM NoC slot is not a
+problem in avionics since off-line computation is a standard industry practice.
+However, other applications may require more flexibility regarding
+communication schedules. The passive communication paradigm of our approach can
+be a blocking point for applications needing on-line communication support.
 
 
-\subsubsection{Limits of the hypervisor}
-Our implementation of the execution model through a hypervisor also introduces limitations on what applications can do with the hardware. The design of the hypervisor imposes that lengths and periods of TDM slots must be multiple of the hypervisor's period and thus lower bounds NoC latencies for short messages. In addition, the hypervisor's period is lower bounded by its WCET which depends on the number of data that DMA can handle autonomously. Making a choice regarding this parameter will favour a certain type of applications and thus handicap others.
+\subsubsection{Limits of the hypervisor} Our implementation of the execution
+model through a hypervisor also introduces limitations on what applications can
+do with the hardware. The design of the hypervisor imposes that lengths and
+periods of TDM slots must be multiple of the hypervisor's period and thus lower
+bounds NoC latencies for short messages. In addition, the hypervisor's period
+is lower bounded by its WCET which depends on the number of data that DMA can
+handle autonomously. Making a choice regarding this parameter will favour a
+certain type of applications and thus handicap others.
 
-Moreover, the current hypervisor's implementation relies on frozen MMU configuration and fixed exception handlers. Clearly, making this assumption raises a major issue to run applications on top of a guest operating system. This is not an issue for safety-critical avionics applications that typically run in bare-metal. However, for more dynamic applications, not being able to issue system calls may become a concern and require deep modifications of applications to replace OS dependencies by embedding libraries. 
+Moreover, the current hypervisor's implementation relies on frozen MMU
+configuration and fixed exception handlers. Clearly, making this assumption
+raises a major issue to run applications on top of a guest operating system.
+This is not an issue for safety-critical avionics applications that typically
+run in bare-metal. However, for more dynamic applications, not being able to
+issue system calls may become a concern and require deep modifications of
+applications to replace OS dependencies by embedding libraries. 
 
-\subsubsection{Limits of the CSP-based validation}
-Our CSP formulation of the budget validation problem relies on two assumptions. 
-Firstly, assuming that no code is ever fetched from the external DDR-SDRAM is a limitation. With 32MiB of SRAM in the compute clusters of the \mppalong, our approach will fail on any application with larger code. Again, making such an assumption is usually not a problem for safety-critical control applications where the size of the code usually stays in reasonable boundaries. However, other types of applications may face difficulties to fit completely in 32MiB.
+\subsubsection{Limits of the CSP-based validation} Our CSP formulation of the
+budget validation problem relies on two assumptions.  Firstly, assuming that no
+code is ever fetched from the external DDR-SDRAM is a limitation. With 32MiB of
+SRAM in the compute clusters of the \mppalong, our approach will fail on any
+application with larger code. Again, making such an assumption is usually not a
+problem for safety-critical control applications where the size of the code
+usually stays in reasonable boundaries. However, other types of applications
+may face difficulties to fit completely in 32MiB.
 
-Secondly, it is assumed in the current CSP formulation that data locations in memory are unknown. Consequently, we make the conservative assumption that no data are contiguous and that DMA can never send concatenated data. Since DMA jumps from one memory location to another take time, making this assumption can limit the overall performance. In particular, we identified in our case study that DMA performance was the bottleneck for performing higher speedups. This assumption leads to potentially sub-optimal schedules and may not be able to validate budgets for which a solution exists when data are concatenated.\\
+Secondly, it is assumed in the current CSP formulation that data locations in
+memory are unknown. Consequently, we make the conservative assumption that no
+data are contiguous and that DMA can never send concatenated data. Since DMA
+jumps from one memory location to another take time, making this assumption can
+limit the overall performance. In particular, we identified in our case study
+that DMA performance was the bottleneck for performing higher speedups. This
+assumption leads to potentially sub-optimal schedules and may not be able to
+validate budgets for which a solution exists when data are concatenated.\\
 
-Overall, most of the limitations listed above can be eliminated or at least mitigated by optimizing or modifying some parts of the approach. We discuss these opportunities for ameliorations in the next section.
+Overall, most of the limitations listed above can be eliminated or at least
+mitigated by optimizing or modifying some parts of the approach. We discuss
+these opportunities for ameliorations in the next section.
 
 
-\section{Future perspectives}
-We see several direct opportunities to further improve our work. This involves changes at all levels of the framework, including the execution model and its implementation, the automated validation procedure or the introduction of an automated allocation of concrete resources to budgets. In addition, we also see several opportunities to leverage many-core processors in even more disruptive applications that may become of major interest in future aircrafts. Both are detailed in the remainder of this section.
+\section{Future perspectives} We see several direct opportunities to further
+improve our work. This involves changes at all levels of the framework,
+including the execution model and its implementation, the automated validation
+procedure or the introduction of an automated allocation of concrete resources
+to budgets. In addition, we also see several opportunities to leverage
+many-core processors in even more disruptive applications that may become of
+major interest in future aircrafts. Both are detailed in the remainder of this
+section.
 
-\subsection{Execution model and implementation}
-Our execution model is tailored to avionics applications. In particular, requiring the knowledge of all data to be sent over the NoC prior to execution can be argued as particularly constraining. Relaxing this constraint could add significant flexibility to the approach and enable more dynamic applications to be handled efficiently. However, doing so involves deep changes in the design of the hypervisor. To gain in flexibility, there are two main options: changing the scheduling scheme of the NoC or extend the current hypervisor to manage on-line communication requests.
+\subsection{Execution model and implementation} Our execution model is tailored
+to avionics applications. In particular, requiring the knowledge of all data to
+be sent over the NoC prior to execution can be argued as particularly
+constraining. Relaxing this constraint could add significant flexibility to the
+approach and enable more dynamic applications to be handled efficiently.
+However, doing so involves deep changes in the design of the hypervisor. To
+gain in flexibility, there are two main options: changing the scheduling scheme
+of the NoC or extend the current hypervisor to manage on-line communication
+requests.
 
-\subsubsection{Asynchronous NoC Schedule}
-One may decide to drop the TDM schedule of the NoC and to use the hardware limiters of the \mppalong's NoC interfaces instead. Using network calculus, it may be possible to compute WCTTs of NoC packets and thus to temporally validate applications. In addition, the software support for NoC communications could be significantly reduced. Moreover, periods of communications would not need to be multiples of the hypervisor's period anymore. However, using that sort of asynchronous scheme also has some drawbacks. Although network calculus is perfectly suitable to guarantee bandwidths to applications, the guarantees regarding latencies are likely to be large. This is not due to pessimism in calculation, it is the cost of asynchronism. In addition, dropping the TDM scheme at the NoC level involves to drop it at the DDR-SDRAM level as well. Consequently, the row conflicts in banks could not be avoided by construction anymore. This leaves two choices to designers:
-\begin{enumerate}
-    \item they can enforce pure spatial partitioning at the DDR-SDRAM bank level. This means having no more than one partition allocated to each bank. As a consequence, no more communications between partitions using shared memory can be achieved and the number of partitions using DDR-SDRAM is upper-bounded by the total number of DDR-SDRAM banks.
-    \item they can allow several partitions to share a bank and thus avoid the problems mentioned above. However, since row conflicting requests in banks are now possible, they must be accounted when computing memory access time. Consequently, the guaranteed DDR-SDRAM throughput is likely to decrease while guaranteed memory access latencies are likely to grow.
+\subsubsection{Asynchronous NoC Schedule} One may decide to drop the TDM
+schedule of the NoC and to use the hardware limiters of the \mppalong's NoC
+interfaces instead. Using network calculus, it may be possible to compute WCTTs
+of NoC packets and thus to temporally validate applications. In addition, the
+software support for NoC communications could be significantly reduced.
+Moreover, periods of communications would not need to be multiples of the
+hypervisor's period anymore. However, using that sort of asynchronous scheme
+also has some drawbacks. Although network calculus is perfectly suitable to
+guarantee bandwidths to applications, the guarantees regarding latencies are
+likely to be large. This is not due to pessimism in calculation, it is the cost
+of asynchronism. In addition, dropping the TDM scheme at the NoC level involves
+to drop it at the DDR-SDRAM level as well. Consequently, the row conflicts in
+banks could not be avoided by construction anymore. This leaves two choices to
+designers: 
+\begin{enumerate} 
+    \item they can enforce pure spatial partitioning at the
+        DDR-SDRAM bank level. This means having no more than one partition
+            allocated to each bank. As a consequence, no more communications
+            between partitions using shared memory can be achieved and the
+        number of partitions using DDR-SDRAM is upper-bounded by the total
+        number of DDR-SDRAM banks.  
+    \item they can allow several partitions to
+        share a bank and thus avoid the problems mentioned above. However,
+        since row conflicting requests in banks are now possible, they must be
+        accounted when computing memory access time. Consequently, the
+        guaranteed DDR-SDRAM throughput is likely to decrease while guaranteed
+        memory access latencies are likely to grow.  
+\end{enumerate} 
+In either cases, managing communications on-line using the \mppalong's packet
+shapers involves significant modifications of the approach and may, in some
+case, come at the cost of higher guaranteed latencies. We argue that
+investigating the trade-offs of such designs is an interesting opportunity for
+future work.
+
+\subsubsection{On-line communication request over TDM schedule} Relaxing the
+NoC communication scheme with on-line requests rather than a passive approach
+seems possible without dropping the TDM schedule. Assuming that NoC
+communications are still performed in a TDM fashion, one may imagine the
+hypervisor to send data in the TDM slot in response to requests from
+applications on-line. In this case, applications could asynchronously submit
+communication requests in a queue. At the beginning of a TDM slot, the
+hypervisor would dequeue a request and decide to perform it or not. Depending
+on the amount of data requested, the hypervisor would have to check whether the
+TDM slot is long enough to send all the data and to avoid running over the TDM
+schedule. In a safety critical context, this decision would be critical to
+avoid TDM violations. Several solutions are possible. If a request is
+identified as too large for a TDM slot, the hypervisor may decide to either
+refuse to process it and send an error to the initiating application, or to
+split it in sub-requests to be processed over several TDM slots. Overall,
+enabling on-line requests will lead to an increased complexity of the
+hypervisor anyway. The decision making algorithm would have to be safe and fast
+to avoid system failures or prohibitive overheads.  Finally, TDM slots would
+have to be reserved for all communication channels, no matter how they are
+used. For an application with uneven communication needs, the reservation to
+meet peak load will leave many slots empty during idle periods and lead to low
+NoC utilization.
+
+Overall, introducing on-line request processing into the hypervisor raises
+several challenges regarding its implementation and the allocation of TDM slots
+to partitions. In particular, there are critical concerns regarding robustness
+and overheads. Yet, exploring this path appears as a good opportunity for
+future work.
+
+\subsection{Data management during validation} The management of data in our
+CSP formulation of the validation problem can be optimized. We saw during
+experiments that DMA jumps between non-contiguous memory areas are time
+consuming. By assuming that data locations are not known, we greatly simplify
+the CSP and enable it to scale to large applications using simple cumulative
+functions. Yet, this is a conservative assumption leading to potentially
+sub-optimal results. In order to improve the current validation procedure, data
+locations may be optimized using one of the three following methods:
+\begin{enumerate} 
+    \item data locations may be fixed in pre-processing. Before
+        solving the CSP, one may compute a mapping of the application's data.
+        Once fixed, the CSP formulation would have to be extended to account
+        for this mapping in order to avoid the $N_{flit}^{gap}$ when two
+        contiguous data are sent in the same TDM slot. In this case, computing
+        such a mapping prior to solving is not obvious since the location of
+        sub-tasks which produce the data are not known. Thus, a \emph{good}
+        pre-processing data optimizer would place contiguously data produced by
+        sub-tasks that are likely to be assigned the same cluster. Although
+        this may improve results overall, it is clear that this approach
+        remains sub-optimal.  
+    \item data locations may be computed together with the mapping of the
+        other application's elements. In this case, several decision variables
+        should be added to the CSP in order to encode the resulting location of
+        each data on each cluster. In this case, the CSP formulation needs to
+        be extended to compute the location of the data in memory and to use
+        this information in the mapping of sub-tasks to clusters. While this
+        approach will provide the best results, it will also greatly harden the
+        problem. When it comes to mapping large applications, it is not clear
+        whether such complexity increase can be handled or not.  
+    \item data locations may be optimized in
+        post-processing. After solving the CSP without modifications, the
+        allocation of sub-tasks to clusters and data to TDM slots will be
+        known.  Based on this, one may now optimize locations of memory mapping
+        to concatenate as many data as possible and reduce the number of DMA
+        jumps during TDM slots. By doing so, DMA will process data more
+        efficiently and will probably finish their work earlier than expected
+        in many cases. Such an optimization does not really help to find more
+        solutions, it will rather improve an existing solution that was
+        computed using the conservative approach and increase its margins.
+        However, it is possible that some infeasible mappings computed with
+        fake parameters in the conservative approach may actually become
+        feasible once optimized in post-processing. Although the conservative
+        approach will probably be preferred in the industry, it may happen that
+        only this optimistic approach is able to find schedules.
 \end{enumerate}
-In either cases, managing communications on-line using the \mppalong's packet shapers involves significant modifications of the approach and may, in some case, come at the cost of higher guaranteed latencies. We argue that investigating the trade-offs of such designs is an interesting opportunity for future work.
 
-\subsubsection{On-line communication request over TDM schedule}
-Relaxing the NoC communication scheme with on-line requests rather than a passive approach seems possible without dropping the TDM schedule. Assuming that NoC communications are still performed in a TDM fashion, one may imagine the hypervisor to send data in the TDM slot in response to requests from applications on-line. In this case, applications could asynchronously submit communication requests in a queue. At the beginning of a TDM slot, the hypervisor would dequeue a request and decide to perform it or not. Depending on the amount of data requested, the hypervisor would have to check whether the TDM slot is long enough to send all the data and to avoid running over the TDM schedule. In a safety critical context, this decision would be critical to avoid TDM violations. Several solutions are possible. If a request is identified as too large for a TDM slot, the hypervisor may decide to either refuse to process it and send an error to the initiating application, or to split it in sub-requests to be processed over several TDM slots. Overall, enabling on-line requests will lead to an increased complexity of the hypervisor anyway. The decision making algorithm would have to be safe and fast to avoid system failures or prohibitive overheads. 
-Finally, TDM slots would have to be reserved for all communication channels, no matter how they are used. For an application with uneven communication needs, the reservation to meet peak load will leave many slots empty during idle periods and lead to low NoC utilization.
+Overall, it is clear that optimizing the locations of data in local memories is
+important. Pre- and post-processing optimization are likely to be easier but
+remain sub-optimal. Introducing the data locations as decision variables in the
+CSP is clearly going to provide the best solution but also adds a lot of
+complexity. The evaluation of the benefits and drawbacks of these three
+approaches is an interesting perspective of amelioration.
 
-Overall, introducing on-line request processing into the hypervisor raises several challenges regarding its implementation and the allocation of TDM slots to partitions. In particular, there are critical concerns regarding robustness and overheads. Yet, exploring this path appears as a good opportunity for future work.
+\subsection{Automated allocation of concrete resources to budgets} As we
+mentioned earlier in this thesis, the allocation of concrete resources to
+partitions automatically may be implemented using constraint programming. One
+of the main problems regarding this task is to allocate routes and offsets to
+\PC{}s while simultaneously allocating clusters to \PN{}s. It appears that
+allocating the offsets to \PC{}s is close to scheduling problems in
+\emph{Offset free systems}~\cite{Goossens03}. In essence, the offset-assignment
+problem in strictly periodic systems has been studied for a long
+time~\cite{Korst91} and previous results are now used to build more complex
+scheduling algorithms using ILP~\cite{Kermia09,Alsheikh11}. Overall, it seems
+possible to extend those results with additional constraints on route
+assignments to \PC{}s and cluster assignments for \PN{}s. We argue that
+providing such extensions could be a valuable addition to our work.
 
-\subsection{Data management during validation}
-The management of data in our CSP formulation of the validation problem can be optimized. We saw during experiments that DMA jumps between non-contiguous memory areas are time consuming. By assuming that data locations are not known, we greatly simplify the CSP and enable it to scale to large applications using simple cumulative functions. Yet, this is a conservative assumption leading to potentially sub-optimal results. In order to improve the current validation procedure, data locations may be optimized using one of the three following methods: 
-\begin{enumerate}
-    \item data locations may be fixed in pre-processing. Before solving the CSP, one may compute a mapping of the application's data. Once fixed, the CSP formulation would have to be extended to account for this mapping in order to avoid the $N_{flit}^{gap}$ when two contiguous data are sent in the same TDM slot. In this case, computing such a mapping prior to solving is not obvious since the location of sub-tasks which produce the data are not known. Thus, a \emph{good} pre-processing data optimizer would place contiguously data produced by sub-tasks that are likely to be assigned the same cluster. Although this may improve results overall, it is clear that this approach remains sub-optimal.
-    \item data locations may be computed together with the mapping of the other application's elements. In this case, several decision variables should be added to the CSP in order to encode the resulting location of each data on each cluster. In this case, the CSP formulation needs to be extended to compute the location of the data in memory and to use this information in the mapping of sub-tasks to clusters. While this approach will provide the best results, it will also greatly harden the problem. When it comes to mapping large applications, it is not clear whether such complexity increase can be handled or not.
-    \item data locations may be optimized in post-processing. After solving the CSP without modifications, the allocation of sub-tasks to clusters and data to TDM slots will be known. Based on this, one may now optimize locations of memory mapping to concatenate as many data as possible and reduce the number of DMA jumps during TDM slots. By doing so, DMA will process data more efficiently and will probably finish their work earlier than expected in many cases. Such an optimization does not really help to find more solutions, it will rather improve an existing solution that was computed using the conservative approach and increase its margins. However, it is possible that some infeasible mappings computed with fake parameters in the conservative approach may actually become feasible once optimized in post-processing. Although the conservative approach will probably be preferred in the industry, it may happen that only this optimistic approach is able to find schedules.
-\end{enumerate}
 
-Overall, it is clear that optimizing the locations of data in local memories is important. Pre- and post-processing optimization are likely to be easier but remain sub-optimal. Introducing the data locations as decision variables in the CSP is clearly going to provide the best solution but also adds a lot of complexity. The evaluation of the benefits and drawbacks of these three approaches is an interesting perspective of amelioration.
-
-\subsection{Automated allocation of concrete resources to budgets}
-As we mentioned earlier in this thesis, the allocation of concrete resources to partitions automatically may be implemented using constraint programming. One of the main problems regarding this task is to allocate routes and offsets to \PC{}s while simultaneously allocating clusters to \PN{}s. It appears that allocating the offsets to \PC{}s is close to scheduling problems in \emph{Offset free systems}~\cite{Goossens03}. In essence, the offset-assignment problem in strictly periodic systems has been studied for a long time~\cite{Korst91} and previous results are now used to build more complex scheduling algorithms using ILP~\cite{Kermia09,Alsheikh11}. Overall, it seems possible to extend those results with additional constraints on route assignments to \PC{}s and cluster assignments for \PN{}s. We argue that providing such extensions could be a valuable addition to our work.
-
-
-\subsection{Long term perspectives}
-Using distributed systems to process heavy workloads is not a new idea. 
-For example, Google introduced MapReduce~\cite{Dean2004} in 2004 to ease the execution of parallel programs on large clusters of machines. In this thesis, we focused on the \mppalong which actually shares many of the properties of such distributed system, but at a different scale. Porting the techniques applied at macroscopic size within distributed but embedded systems thus appears as a particularly interesting research opportunity. Moreover, new types of software are likely to find their path to aerospace applications in the future. Machine learning algorithms are good examples of such new workloads that are already processed by embedded systems in other industries. Since most of these algorithms heavily rely on matrix arithmetics, they usually benefit from parallelization techniques. Again, many-core processors appear here as good candidates to support these workloads and thus to design future avionics computers. 
+\subsection{Long term perspectives} Using distributed systems to process heavy
+workloads is not a new idea.  For example, Google introduced
+MapReduce~\cite{Dean2004} in 2004 to ease the execution of parallel programs on
+large clusters of machines. In this thesis, we focused on the \mppalong which
+actually shares many of the properties of such distributed system, but at a
+different scale. Porting the techniques applied at macroscopic size within
+distributed but embedded systems thus appears as a particularly interesting
+research opportunity. Moreover, new types of software are likely to find their
+path to aerospace applications in the future. Machine learning algorithms are
+good examples of such new workloads that are already processed by embedded
+systems in other industries. Since most of these algorithms heavily rely on
+matrix arithmetics, they usually benefit from parallelization techniques.
+Again, many-core processors appear here as good candidates to support these
+workloads and thus to design future avionics computers. 
 
 
 \subbiblio
