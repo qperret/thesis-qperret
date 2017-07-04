@@ -702,9 +702,9 @@
 	}%
 	% Colored frame box
 	\put(\LenToUnit{\@pdgMargeSize},\LenToUnit{\@pdgMargeSize}){%
-		%\color{pdgred}
-		\color{black}
-		%\framebox(\LenToUnit{\@pdgInnerBoxWidth},\LenToUnit{\@pdgInnerBoxHeight}){}
+		\color{pdgred}
+		%\color{black}
+		\framebox(\LenToUnit{\@pdgInnerBoxWidth},\LenToUnit{\@pdgInnerBoxHeight}){}
 	}%
 }
 
@@ -834,7 +834,7 @@
 					
                         \vfill
                         %%%% JURY %%%%
-                        {\bfseries JURY}
+                        {\bfseries JURY\\}
                         \vspace*{0.3cm}
                         \ifnum \@njudge=0
                           \\Membres du jury
@@ -842,7 +842,8 @@
                           \foreach \n in {1,...,\@njudge}{%
                               \edef\mytemp{{\csname @judgeS\n\endcsname}{\showline}}%
                               \expandafter\ifstrequal\mytemp{%TRUE
-                                  \textline[t]{\csname @judgeN\n\endcsname}{\csname @judgeP\n\endcsname}{\csname @judgeL\n\endcsname}%
+                                  %\textline[t]{\csname @judgeN\n\endcsname}{\csname @judgeP\n\endcsname}{\csname @judgeL\n\endcsname}%
+                                  {\csname @judgeP\n\endcsname\\}%
                               }{}%
                           }
                         \fi
