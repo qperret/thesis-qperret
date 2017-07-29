@@ -34,12 +34,11 @@ This repository contains the source tex files of Quentin Perret's PhD dissertati
 * Chapters should:
     * be packaged in documents based on the "subfiles" class
     * be compilable independentely from each others.
-
 * TikZ figures should:
-    * be raw (only \begin{tikzpicture} ... \end{tikzpicture} - no header, no footer)
+    * be raw (only `\begin{tikzpicture} ... \end{tikzpicture}` - no header, no footer)
     * have styles of nodes, arcs, ... defined globally in style\_tikz.tex
-    * be compilable and tested easily thanks to wrapper.tex - it helps writting tikz promptly
-* All labels should meet the following structure xxx\_YYY\_ZZZ:
+    * be compilable and tested easily thanks to `wrapper.tex` - it helps writting tikz promptly
+* All labels should meet the following structure `xxx_YYY_ZZZ`:
     * YYY chapter title
     * ZZZ object title
     * xxx type of object
